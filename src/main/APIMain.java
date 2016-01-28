@@ -55,8 +55,7 @@ public class APIMain extends BasicGame {
 
 	public void update(GameContainer gc, int arg1) throws SlickException {
 		Input in = gc.getInput();
-		
-		// keyboard poop
+
 		//  toggle help menu activation
 		if(in.isKeyPressed(Keyboard.KEY_H)) {
 			tutActive = !tutActive;
@@ -77,47 +76,54 @@ public class APIMain extends BasicGame {
 		if(in.isKeyDown(Keyboard.KEY_ESCAPE)) {
 			System.exit(0);
 		}
-		//  add vertices
-		if(in.isKeyDown(Keyboard.KEY_V) && in.isMousePressed(0)) {
-			nodes.add(new Node(in.getMouseX(), in.getMouseY()));
-		}
-		//  delete vertices
-		if(in.isKeyDown(Keyboard.KEY_D) && in.isMouseButtonDown(0)) {
-			int x = in.getMouseX(), y = in.getMouseY();
-			for(int i = 0; i < nodes.size(); i++) {
-				Node n = nodes.get(i);
-				if((n.x-x)*(n.x-x)+(n.y-y)*(n.y-y) < radius*radius) {
-					nodes.remove(i);
-					for(int j = 0; j < cons.size(); j++) {
-						if(cons.get(j).a == i || cons.get(j).b == i) {
-							cons.remove(j);
-							j = j-1;
-						}
-					}
-					break;
-				}
-			}
-		}
 
-		// mouse poop
-		int x = in.getMouseX(), y = in.getMouseY();
 		if(in.isMouseButtonDown(0)) {
-			if(sel == -1) {
+			// add vertices
+			if(in.isKeyDown(Keyboard.KEY_V) && in.isMousePressed(0))
+					nodes.add(new Node(in.getMouseX(), in.getMouseY()));
+			// delete vertices
+			else if(in.isKeyDown(Keyboard.KEY_D)) {
+				int x = in.getMouseX(), y = in.getMouseY();
 				for(int i = 0; i < nodes.size(); i++) {
 					Node n = nodes.get(i);
 					if((n.x-x)*(n.x-x)+(n.y-y)*(n.y-y) < radius*radius) {
-						sel = i;
+						nodes.remove(i);
+						for(int j = 0; j < cons.size(); j++) {
+							if(cons.get(j).a == i || cons.get(j).b == i) {
+								cons.remove(j);
+								j = j-1;
+							}else {
+								if(cons.get(j).a > i)
+									cons.get(j).a--;
+								if(cons.get(j).b > i)
+									cons.get(j).b--;
+							}
+						}
 						break;
 					}
 				}
+			// drag vertices around
+			}else {
+				if(sel == -1) {
+					for(int i = 0; i < nodes.size(); i++) {
+						Node n = nodes.get(i);
+						if((n.x-in.getMouseX())*(n.x-in.getMouseX())+(n.y-in.getMouseY())*(n.y-in.getMouseY()) < radius*radius) {
+							sel = i;
+							break;
+						}
+					}
+				}
 			}
+		// deselect vertices
 		}else {
 			sel = -1;
 		}
+		
+		// connect vertices
 		if(con == -1 && in.isMouseButtonDown(1)) {
 			for(int i = 0; i < nodes.size(); i++) {
 				Node n = nodes.get(i);
-				if((n.x-x)*(n.x-x)+(n.y-y)*(n.y-y) < radius*radius) {
+				if((n.x-in.getMouseX())*(n.x-in.getMouseX())+(n.y-in.getMouseY())*(n.y-in.getMouseY()) < radius*radius) {
 					con = i;
 					break;
 				}
@@ -126,7 +132,7 @@ public class APIMain extends BasicGame {
 			for(int i = 0; i < nodes.size(); i++) {
 				if(i == con) continue;
 				Node n = nodes.get(i);
-				if((n.x-x)*(n.x-x)+(n.y-y)*(n.y-y) < radius*radius) {
+				if((n.x-in.getMouseX())*(n.x-in.getMouseX())+(n.y-in.getMouseY())*(n.y-in.getMouseY()) < radius*radius) {
 					boolean add = true;
 					for(int j = 0; j < cons.size(); j++) {
 						if(((i == cons.get(j).a) && (con == cons.get(j).b)) || ((i == cons.get(j).b) && (con == cons.get(j).a))) {
@@ -143,6 +149,8 @@ public class APIMain extends BasicGame {
 			}
 			con = -1;
 		}
+		
+		// make selected vertex follow the mouse
 		if(sel != -1){
 			nodes.get(sel).x = in.getMouseX();
 			nodes.get(sel).y = in.getMouseY();
