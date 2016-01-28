@@ -9,6 +9,7 @@ import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 
 public class APIMain extends BasicGame {
@@ -19,13 +20,13 @@ public class APIMain extends BasicGame {
 	public static ArrayList<Node> nodes = new ArrayList<>();
 	public static ArrayList<Connection> cons = new ArrayList<>();
 	public static Random r = new Random();
-	
+
 	public static boolean tutActive = false;
 	public static String help = "h : help",
 			tut = "h : help\n" + 
 					"n : normalize\n" +
-					"r : rearrange vertices into a ring\n" +
 					"v : add vertex on click\n" +
+					"d : remove vertex on click\n" +
 					"esc : exit\n" +
 					"  <more coming soon...>";
 
@@ -53,12 +54,15 @@ public class APIMain extends BasicGame {
 	}
 
 	public void update(GameContainer gc, int arg1) throws SlickException {
+		Input in = gc.getInput();
 		
 		// keyboard poop
-		if(gc.getInput().isKeyPressed(Keyboard.KEY_H)) {
+		//  toggle help menu activation
+		if(in.isKeyPressed(Keyboard.KEY_H)) {
 			tutActive = !tutActive;
 		}
-		if(gc.getInput().isKeyDown(Keyboard.KEY_N)) {
+		//  normalize functionality
+		if(in.isKeyDown(Keyboard.KEY_N)) {
 			for(int i = 0; i < cons.size(); i++) {
 				Connection c = cons.get(i);
 				Node a = nodes.get(c.a), b = nodes.get(c.b);
@@ -69,24 +73,35 @@ public class APIMain extends BasicGame {
 				b.y += 0.0005*(a.y-b.y)*len;
 			}
 		}
-		if(gc.getInput().isKeyDown(Keyboard.KEY_R)) {
-			for(int i = 0; i < nodes.size(); i++) {
-				nodes.get(i).x = Math.cos(6.48/nodes.size()*i)*0.4*w+w*0.5;
-				nodes.get(i).y = Math.sin(6.48/nodes.size()*i)*0.4*h+h*0.5;
-			}
-		}
-		if(gc.getInput().isKeyDown(Keyboard.KEY_ESCAPE)) {
+		//  exit functionality
+		if(in.isKeyDown(Keyboard.KEY_ESCAPE)) {
 			System.exit(0);
 		}
-		if(gc.getInput().isKeyDown(Keyboard.KEY_V) && gc.getInput().isMousePressed(0)) {
-			nodes.add(new Node(gc.getInput().getMouseX(), gc.getInput().getMouseY()));
+		//  add vertices
+		if(in.isKeyDown(Keyboard.KEY_V) && in.isMousePressed(0)) {
+			nodes.add(new Node(in.getMouseX(), in.getMouseY()));
 		}
-		if(gc.getInput().isKeyDown(Keyboard.KEY_V))
-			con = -1;
-		
+		//  delete vertices
+		if(in.isKeyDown(Keyboard.KEY_D) && in.isMouseButtonDown(0)) {
+			int x = in.getMouseX(), y = in.getMouseY();
+			for(int i = 0; i < nodes.size(); i++) {
+				Node n = nodes.get(i);
+				if((n.x-x)*(n.x-x)+(n.y-y)*(n.y-y) < radius*radius) {
+					nodes.remove(i);
+					for(int j = 0; j < cons.size(); j++) {
+						if(cons.get(j).a == i || cons.get(j).b == i) {
+							cons.remove(j);
+							j = j-1;
+						}
+					}
+					break;
+				}
+			}
+		}
+
 		// mouse poop
-		int x = gc.getInput().getMouseX(), y = gc.getInput().getMouseY();
-		if(gc.getInput().isMouseButtonDown(0)) {
+		int x = in.getMouseX(), y = in.getMouseY();
+		if(in.isMouseButtonDown(0)) {
 			if(sel == -1) {
 				for(int i = 0; i < nodes.size(); i++) {
 					Node n = nodes.get(i);
@@ -99,37 +114,38 @@ public class APIMain extends BasicGame {
 		}else {
 			sel = -1;
 		}
-		if(gc.getInput().isMousePressed(1)) {
+		if(con == -1 && in.isMouseButtonDown(1)) {
 			for(int i = 0; i < nodes.size(); i++) {
 				Node n = nodes.get(i);
 				if((n.x-x)*(n.x-x)+(n.y-y)*(n.y-y) < radius*radius) {
-					if(i == con) {
-						con = -1;
-						continue;
-					}
-					if(con != -1) {
-						boolean add = true;
-						for(int j = 0; j < cons.size(); j++) {
-							if(((i == cons.get(j).a) && (con == cons.get(j).b)) || ((i == cons.get(j).b) && (con == cons.get(j).a))) {
-								cons.remove(j);
-								add = false;
-								break;
-							}
-						}
-						if(add) {
-							cons.add(new Connection(con, i));
-						}
-						con = -1;
-					}else {
-						con = i;
-					}
+					con = i;
 					break;
 				}
 			}
+		}else if(con != -1 && !in.isMouseButtonDown(1)) {
+			for(int i = 0; i < nodes.size(); i++) {
+				if(i == con) continue;
+				Node n = nodes.get(i);
+				if((n.x-x)*(n.x-x)+(n.y-y)*(n.y-y) < radius*radius) {
+					boolean add = true;
+					for(int j = 0; j < cons.size(); j++) {
+						if(((i == cons.get(j).a) && (con == cons.get(j).b)) || ((i == cons.get(j).b) && (con == cons.get(j).a))) {
+							cons.remove(j);
+							add = false;
+							break;
+						}
+					}
+					if(add) {
+						cons.add(new Connection(con, i));
+						break;
+					}
+				}
+			}
+			con = -1;
 		}
 		if(sel != -1){
-			nodes.get(sel).x = gc.getInput().getMouseX();
-			nodes.get(sel).y = gc.getInput().getMouseY();
+			nodes.get(sel).x = in.getMouseX();
+			nodes.get(sel).y = in.getMouseY();
 		}
 	}
 
@@ -137,7 +153,7 @@ public class APIMain extends BasicGame {
 		Node n;
 		Connection c;
 		if(gc.getInput().isKeyDown(Keyboard.KEY_V)) {
-			g.setColor(Color.darkGray);
+			g.setColor(Color.darkGray.brighter());
 			g.drawOval(gc.getInput().getMouseX()-radius, gc.getInput().getMouseY()-radius, 2*radius, 2*radius);
 		}
 		if(sel != -1) {
