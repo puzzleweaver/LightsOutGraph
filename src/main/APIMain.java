@@ -23,11 +23,13 @@ public class APIMain extends BasicGame {
 	public static boolean tutActive = false;
 	public static String help = "h : help",
 			tut = "h : help\n" + 
-					"n : normalize" + 
-					"esc : exit" +
+					"n : normalize\n" +
+					"r : rearrange vertices into a ring\n" +
+					"v : add vertex on click\n" +
+					"esc : exit\n" +
 					"  <more coming soon...>";
 
-	public static int radius = 10, defaultLen = 50, sel = -1, con = -1;
+	public static int radius = 10, defaultLen = 100, sel = -1, con = -1;
 
 	public static void main(String[] args) {
 		try {
@@ -67,13 +69,24 @@ public class APIMain extends BasicGame {
 				b.y += 0.0005*(a.y-b.y)*len;
 			}
 		}
+		if(gc.getInput().isKeyDown(Keyboard.KEY_R)) {
+			for(int i = 0; i < nodes.size(); i++) {
+				nodes.get(i).x = Math.cos(6.48/nodes.size()*i)*0.4*w+w*0.5;
+				nodes.get(i).y = Math.sin(6.48/nodes.size()*i)*0.4*h+h*0.5;
+			}
+		}
 		if(gc.getInput().isKeyDown(Keyboard.KEY_ESCAPE)) {
 			System.exit(0);
 		}
+		if(gc.getInput().isKeyDown(Keyboard.KEY_V) && gc.getInput().isMousePressed(0)) {
+			nodes.add(new Node(gc.getInput().getMouseX(), gc.getInput().getMouseY()));
+		}
+		if(gc.getInput().isKeyDown(Keyboard.KEY_V))
+			con = -1;
 		
 		// mouse poop
 		int x = gc.getInput().getMouseX(), y = gc.getInput().getMouseY();
-		if(gc.getInput().isMousePressed(0)) {
+		if(gc.getInput().isMouseButtonDown(0)) {
 			if(sel == -1) {
 				for(int i = 0; i < nodes.size(); i++) {
 					Node n = nodes.get(i);
@@ -82,9 +95,9 @@ public class APIMain extends BasicGame {
 						break;
 					}
 				}
-			}else {
-				sel = -1;
 			}
+		}else {
+			sel = -1;
 		}
 		if(gc.getInput().isMousePressed(1)) {
 			for(int i = 0; i < nodes.size(); i++) {
@@ -120,16 +133,21 @@ public class APIMain extends BasicGame {
 		}
 	}
 
-	public void render(GameContainer arg0, Graphics g) throws SlickException {
+	public void render(GameContainer gc, Graphics g) throws SlickException {
 		Node n;
 		Connection c;
+		if(gc.getInput().isKeyDown(Keyboard.KEY_V)) {
+			g.setColor(Color.darkGray);
+			g.drawOval(gc.getInput().getMouseX()-radius, gc.getInput().getMouseY()-radius, 2*radius, 2*radius);
+		}
 		if(sel != -1) {
 			g.setColor(Color.red);
 			g.fillOval((int) nodes.get(sel).x-radius, (int) nodes.get(sel).y-radius, 2*radius, 2*radius);
 		}
 		if(con != -1) {
-			g.setColor(Color.green);
+			g.setColor(Color.darkGray);
 			g.fillOval((int) nodes.get(con).x-radius, (int) nodes.get(con).y-radius, 2*radius, 2*radius);
+			g.drawLine((int) nodes.get(con).x, (int) nodes.get(con).y, gc.getInput().getMouseX(), gc.getInput().getMouseY());
 		}
 		g.setColor(Color.white);
 		for(int i = 0; i < nodes.size(); i++) {
