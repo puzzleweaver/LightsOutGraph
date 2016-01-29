@@ -35,7 +35,7 @@ public class EditMode extends Mode {
 		
 		else if(in.isKeyDown(Keyboard.KEY_V) && in.isMousePressed(0))
 			addVertice();
-		else if(in.isKeyDown(Keyboard.KEY_D) && in.isMousePressed(0))
+		else if(in.isKeyDown(Keyboard.KEY_D) && in.isMouseButtonDown(0))
 			deleteVertices();
 		else if(in.isMouseButtonDown(0))
 			selectVertices();
@@ -89,12 +89,20 @@ public class EditMode extends Mode {
 	
 	public void addToChain() {
 		if(eid == -1) {
+			int x = APIMain.mouseX, y = APIMain.mouseY;
+			for(int i = 0; i < APIMain.nodes.size(); i++) {
+				Node n = APIMain.nodes.get(i);
+				if((n.x-x)*(n.x-x)+(n.y-y)*(n.y-y) < APIMain.radius*APIMain.radius) {
+					eid = i;
+					return;
+				}
+			}
 			APIMain.nodes.add(new Node(APIMain.mouseX, APIMain.mouseY));
 			eid = APIMain.nodes.size()-1;
 		}else {
 			APIMain.nodes.add(new Node(APIMain.mouseX, APIMain.mouseY));
+			APIMain.cons.add(new Connection(eid, APIMain.nodes.size()-1));
 			eid = APIMain.nodes.size()-1;
-			APIMain.cons.add(new Connection(APIMain.nodes.size()-1, APIMain.nodes.size()-2));
 		}
 	}
 	

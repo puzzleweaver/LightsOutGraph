@@ -13,7 +13,7 @@ public class Node {
 	}
 	
 	public Color getColor() {
-		Color c = val ? Color.red:Color.green;
+		Color c = val ? Color.green:Color.red;
 		if(clicked)
 			c = c.darker().darker();
 		return c;

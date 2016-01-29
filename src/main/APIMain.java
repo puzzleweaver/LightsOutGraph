@@ -30,8 +30,7 @@ public class APIMain extends BasicGame {
 					"t : switch mode\n" +
 					"esc : exit\n";
 
-	public static int radius = 15, defaultLen = 100, border = 100, sel = -1, con = -1;
-	public static int eid = -1;
+	public static int radius = 15, defaultLen = 100, border = 100, sel = -1;
 
 	public static void main(String[] args) {
 		try {
