@@ -32,7 +32,7 @@ public class APIMain extends BasicGame {
 					"esc : exit\n";
 
 	public static int radius = 15, defaultLen = 100, border = 100, sel = -1;
-
+	
 	public static void main(String[] args) {
 		try {
 			AppGameContainer app = new AppGameContainer(new APIMain());
@@ -43,16 +43,16 @@ public class APIMain extends BasicGame {
 			System.out.println(e);
 		}
 	}
-
+	
 	public APIMain(){
-		super("YOU'RE A BLIZZARD HARRY");
+		super("Lights Out Graph Program");
 		System.out.println(modes[0].name);
 	}
-
+	
 	public void init(GameContainer gc) throws SlickException {
 		gc.setShowFPS(false);
 	}
-
+	
 	public void update(GameContainer gc, int arg1) throws SlickException {
 		Input in = gc.getInput();
 		
@@ -137,7 +137,7 @@ public class APIMain extends BasicGame {
 		}
 	}
 	
-	public void propagate() {
+	public static void propagate() {
 		Connection c;
 		for(int i = 0; i < nodes.size(); i++) {
 			nodes.get(i).val = nodes.get(i).clicked;
@@ -150,7 +150,7 @@ public class APIMain extends BasicGame {
 				nodes.get(c.a).val = !nodes.get(c.a).val;
 		}
 	}
-
+	
 	public void render(GameContainer gc, Graphics g) throws SlickException {
 		g.setAntiAlias(true);
 		g.setLineWidth(3);
@@ -181,5 +181,5 @@ public class APIMain extends BasicGame {
 		g.setColor(Color.white);
 		g.drawString(str, 15, 15);
 	}
-
+	
 }
