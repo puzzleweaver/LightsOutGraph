@@ -20,7 +20,7 @@ public class APIMain extends BasicGame {
 	public static int w = 600, h = 600;
 	public static ArrayList<Node> nodes = new ArrayList<>();
 	public static ArrayList<Connection> cons = new ArrayList<>();
-	public static int mouseX, mouseY;
+	public static int mouseX, mouseY, mouseWheel;
 	public static final Mode[] modes = {new EditMode(), new SolveMode()};
 	public static int mode = 0;
 
@@ -67,9 +67,9 @@ public class APIMain extends BasicGame {
 		mouseY = in.getMouseY();
 
 		// zoom function
-		int dw = Mouse.getDWheel();
-		if(dw != 0) {
-			if(dw < 0) {
+		mouseWheel = Mouse.getDWheel();
+		if(mouseWheel != 0) {
+			if(mouseWheel < 0) {
 				for(int i = 0; i < nodes.size(); i++) {
 					nodes.get(i).x = (nodes.get(i).x-mouseX)*0.9+mouseX;
 					nodes.get(i).y = (nodes.get(i).y-mouseY)*0.9+mouseY;
@@ -139,6 +139,7 @@ public class APIMain extends BasicGame {
 			g.fillOval((int) n.x-radius, (int) n.y-radius, 2*radius, 2*radius);
 			g.setColor(Color.white);
 			g.drawOval((int) n.x-radius, (int) n.y-radius, 2*radius, 2*radius);
+			g.drawString(""+i, (int) n.x-radius, (int) n.y-radius);
 		}
 		
 		modes[mode].render(gc, g);
