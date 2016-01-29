@@ -1,7 +1,6 @@
 package main;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.lwjgl.input.Keyboard;
 import org.newdawn.slick.GameContainer;
@@ -12,6 +11,7 @@ public class SolveMode extends Mode {
 	
 	public SolveMode() {
 		super("r : reset board\n" +
+				"s : solve board\n" +
 				"<More soon?>\n",
 				"SOLVE");
 	}
@@ -26,13 +26,6 @@ public class SolveMode extends Mode {
 				n = APIMain.nodes.get(i);
 				if((n.x-x)*(n.x-x)+(n.y-y)*(n.y-y) < APIMain.radius*APIMain.radius) {
 					APIMain.nodes.get(i).trigger();
-					for(int j = 0; j < APIMain.cons.size(); j++) {
-						c = APIMain.cons.get(j);
-						if(c.a == i)
-							APIMain.nodes.get(c.b).effect();
-						if(c.b == i)
-							APIMain.nodes.get(c.a).effect();
-					}
 				}
 			}
 		}
@@ -143,13 +136,6 @@ public class SolveMode extends Mode {
 				}
 				if(APIMain.nodes.get(i).clicked != clicked) {
 					APIMain.nodes.get(i).trigger();
-					for(int j = 0; j < APIMain.cons.size(); j++) {
-						Connection c = APIMain.cons.get(j);
-						if(c.a == i)
-							APIMain.nodes.get(c.b).effect();
-						if(c.b == i)
-							APIMain.nodes.get(c.a).effect();
-					}
 				}
 			}
 		}

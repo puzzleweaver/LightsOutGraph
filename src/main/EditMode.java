@@ -76,6 +76,7 @@ public class EditMode extends Mode {
 		}
 		if(merg != -1) {
 			g.setColor(Color.yellow);
+			g.drawLine((int) APIMain.nodes.get(merg).x, (int) APIMain.nodes.get(merg).y, gc.getInput().getMouseX(), gc.getInput().getMouseY());
 			g.drawOval((int) APIMain.nodes.get(merg).x-APIMain.radius, (int) APIMain.nodes.get(merg).y-APIMain.radius, 2*APIMain.radius, 2*APIMain.radius);
 		}
 		if(gc.getInput().isKeyDown(Keyboard.KEY_V)) {
@@ -105,13 +106,13 @@ public class EditMode extends Mode {
 			a = APIMain.nodes.get(c.a);
 			b = APIMain.nodes.get(c.b);
 			double len = Math.hypot(a.x-b.x, a.y-b.y)-APIMain.defaultLen;
-			a.x -= 0.0005*(a.x-b.x)*len;
-			a.y -= 0.0005*(a.y-b.y)*len;
-			b.x += 0.0005*(a.x-b.x)*len;
-			b.y += 0.0005*(a.y-b.y)*len;
+			a.x -= 0.0004*(a.x-b.x)*len;
+			a.y -= 0.0004*(a.y-b.y)*len;
+			b.x += 0.0004*(a.x-b.x)*len;
+			b.y += 0.0004*(a.y-b.y)*len;
 		}
 	}
-
+	
 	public void addToChain() {
 		if(eid == -1) {
 			int x = APIMain.mouseX, y = APIMain.mouseY;

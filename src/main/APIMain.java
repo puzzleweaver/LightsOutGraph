@@ -1,7 +1,6 @@
 package main;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -50,12 +49,14 @@ public class APIMain extends BasicGame {
 		System.out.println(modes[0].name);
 	}
 
-	public void init(GameContainer arg0) throws SlickException {
-
+	public void init(GameContainer gc) throws SlickException {
+		gc.setShowFPS(false);
 	}
 
 	public void update(GameContainer gc, int arg1) throws SlickException {
 		Input in = gc.getInput();
+		
+		propagate();
 
 		// pan function
 		if(in.isMouseButtonDown(2)) {
@@ -84,8 +85,8 @@ public class APIMain extends BasicGame {
 				}
 			}else {
 				for(int i = 0; i < nodes.size(); i++) {
-					nodes.get(i).x = (nodes.get(i).x-mouseX)*(mouseWheel > 0 ? 0.9:1.111)+mouseX;
-					nodes.get(i).y = (nodes.get(i).y-mouseY)*(mouseWheel > 0 ? 0.9:1.111)+mouseY;
+					nodes.get(i).x = (nodes.get(i).x-mouseX)*(mouseWheel < 0 ? 0.9:1.111)+mouseX;
+					nodes.get(i).y = (nodes.get(i).y-mouseY)*(mouseWheel < 0 ? 0.9:1.111)+mouseY;
 				}
 			}
 		}
@@ -102,25 +103,8 @@ public class APIMain extends BasicGame {
 			System.exit(0);
 		}
 		// center functionality
-		if(in.isKeyDown(Keyboard.KEY_C)) {
-			double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
-					maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
-			for(int i = 0; i < nodes.size(); i++) {
-				if(nodes.get(i).x < minX)
-					minX = nodes.get(i).x;
-				if(nodes.get(i).x > maxX)
-					maxX = nodes.get(i).x;
-				if(nodes.get(i).y < minY)
-					minY = nodes.get(i).y;
-				if(nodes.get(i).y > maxY)
-					maxY = nodes.get(i).y;
-			}
-			double d = Math.max(maxX-minX, maxY-minY);
-			for(int i = 0; i < nodes.size(); i++) {
-				nodes.get(i).x = (nodes.get(i).x-minX)*(w-2*border)/d+border;
-				nodes.get(i).y = (nodes.get(i).y-minY)*(h-2*border)/d+border;
-			}
-		}
+		if(in.isKeyDown(Keyboard.KEY_C))
+			center();
 
 		// make selected vertex follow the mouse
 		if(sel != -1){
@@ -132,9 +116,44 @@ public class APIMain extends BasicGame {
 			mode = (mode+1)%modes.length;
 
 	}
+	
+	public static void center() {
+		double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
+				maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
+		for(int i = 0; i < nodes.size(); i++) {
+			if(nodes.get(i).x < minX)
+				minX = nodes.get(i).x;
+			if(nodes.get(i).x > maxX)
+				maxX = nodes.get(i).x;
+			if(nodes.get(i).y < minY)
+				minY = nodes.get(i).y;
+			if(nodes.get(i).y > maxY)
+				maxY = nodes.get(i).y;
+		}
+		double d = Math.max(maxX-minX, maxY-minY);
+		for(int i = 0; i < nodes.size(); i++) {
+			nodes.get(i).x = (nodes.get(i).x-minX)*(w-2*border)/d+border;
+			nodes.get(i).y = (nodes.get(i).y-minY)*(h-2*border)/d+border;
+		}
+	}
+	
+	public void propagate() {
+		Connection c;
+		for(int i = 0; i < nodes.size(); i++) {
+			nodes.get(i).val = nodes.get(i).clicked;
+		}
+		for(int i = 0; i < cons.size(); i++) {
+			c = cons.get(i);
+			if(nodes.get(c.a).clicked)
+				nodes.get(c.b).val = !nodes.get(c.b).val;
+			if(nodes.get(c.b).clicked)
+				nodes.get(c.a).val = !nodes.get(c.a).val;
+		}
+	}
 
 	public void render(GameContainer gc, Graphics g) throws SlickException {
 		g.setAntiAlias(true);
+		g.setLineWidth(3);
 		Node n;
 		Connection c;
 		g.setColor(Color.white);
@@ -155,13 +174,12 @@ public class APIMain extends BasicGame {
 		modes[mode].render(gc, g);
 
 		g.setColor(Color.white);
-		String str = tutActive ? (tutPref + modes[mode].tut):help;
-		g.drawRect(15, 30, g.getFont().getWidth(str)+10, g.getFont().getHeight(str)+10);
+		String str = modes[mode].name + "    " +(tutActive ? (tutPref + modes[mode].tut):help);
+		g.drawRect(5, 5, g.getFont().getWidth(str)+20, g.getFont().getHeight(str)+20);
 		g.setColor(Color.black);
-		g.fillRect(15, 30, g.getFont().getWidth(str)+10, g.getFont().getHeight(str)+10);
+		g.fillRect(5, 5, g.getFont().getWidth(str)+20, g.getFont().getHeight(str)+20);
 		g.setColor(Color.white);
-		g.drawString(str, 15, 30);
-		g.drawString(modes[mode].name, h-10-g.getFont().getWidth(modes[mode].name), h-20);
+		g.drawString(str, 15, 15);
 	}
 
 }

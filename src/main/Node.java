@@ -5,7 +5,8 @@ import org.newdawn.slick.Color;
 public class Node {
 	
 	public double x, y;
-	public boolean val, clicked;
+	public boolean clicked;
+	public boolean val;
 	
 	public Node(int x, int y) {
 		this.x = x;
@@ -21,14 +22,9 @@ public class Node {
 	
 	public void trigger() {
 		clicked = !clicked;
-		val = !val;
-	}
-	public void effect() {
-		val = !val;
 	}
 	
 	public void reset() {
-		val = false;
 		clicked = false;
 	}
 	
