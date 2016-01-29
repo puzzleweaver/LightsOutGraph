@@ -1,5 +1,7 @@
 package main;
 
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 
 public abstract class Mode {
@@ -12,5 +14,6 @@ public abstract class Mode {
 	}
 	
 	public abstract void update(Input in);
+	public abstract void render(GameContainer gc, Graphics g);
 	
 }

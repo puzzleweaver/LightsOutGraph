@@ -1,6 +1,9 @@
 package main;
 
 import org.lwjgl.input.Keyboard;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 
 public class EditMode extends Mode {
@@ -44,6 +47,16 @@ public class EditMode extends Mode {
 		else if(con != -1 && !in.isMouseButtonDown(1))
 			endConnection();
 
+	}
+	public void render(GameContainer gc, Graphics g) {
+		if(con != -1) {
+			g.setColor(Color.gray);
+			g.drawLine((int) APIMain.nodes.get(con).x, (int) APIMain.nodes.get(con).y, gc.getInput().getMouseX(), gc.getInput().getMouseY());
+		}
+		if(gc.getInput().isKeyDown(Keyboard.KEY_V)) {
+			g.setColor(Color.gray);
+			g.drawOval(gc.getInput().getMouseX()-APIMain.radius, gc.getInput().getMouseY()-APIMain.radius, 2*APIMain.radius, 2*APIMain.radius);
+		}
 	}
 
 	public void generateGrid() {

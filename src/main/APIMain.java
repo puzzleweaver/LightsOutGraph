@@ -20,18 +20,15 @@ public class APIMain extends BasicGame {
 	public static int w = 600, h = 600;
 	public static ArrayList<Node> nodes = new ArrayList<>();
 	public static ArrayList<Connection> cons = new ArrayList<>();
-	public static Random r = new Random();
 	public static int mouseX, mouseY;
-	public static final Mode[] modes = {new EditMode()};
+	public static final Mode[] modes = {new EditMode(), new SolveMode()};
 	public static int mode = 0;
 
 	public static boolean tutActive = false;
 	public static String help = "h : help",
 			tutPref = "h : help\n" + 
-					"t : switch mode\n",
-					tutSuf = "esc : exit\n" +
-							"  <more coming soon...>";
-	public static String[] modeHelp = {};
+					"t : switch mode\n" +
+					"esc : exit\n";
 
 	public static int radius = 15, defaultLen = 100, border = 100, sel = -1, con = -1;
 	public static int eid = -1;
@@ -132,19 +129,6 @@ public class APIMain extends BasicGame {
 		g.setAntiAlias(true);
 		Node n;
 		Connection c;
-		if(gc.getInput().isKeyDown(Keyboard.KEY_V)) {
-			g.setColor(Color.gray);
-			g.drawOval(gc.getInput().getMouseX()-radius, gc.getInput().getMouseY()-radius, 2*radius, 2*radius);
-		}
-		if(sel != -1) {
-			g.setColor(Color.red);
-			g.fillOval((int) nodes.get(sel).x-radius, (int) nodes.get(sel).y-radius, 2*radius, 2*radius);
-		}
-		if(con != -1) {
-			g.setColor(Color.gray);
-			g.fillOval((int) nodes.get(con).x-radius, (int) nodes.get(con).y-radius, 2*radius, 2*radius);
-			g.drawLine((int) nodes.get(con).x, (int) nodes.get(con).y, gc.getInput().getMouseX(), gc.getInput().getMouseY());
-		}
 		g.setColor(Color.white);
 		for(int i = 0; i < cons.size(); i++) {
 			c = cons.get(i);
@@ -152,12 +136,16 @@ public class APIMain extends BasicGame {
 		}
 		for(int i = 0; i < nodes.size(); i++) {
 			n = nodes.get(i);
-			g.setColor(Color.black);
+			g.setColor(n.getColor());
 			g.fillOval((int) n.x-radius, (int) n.y-radius, 2*radius, 2*radius);
 			g.setColor(Color.white);
 			g.drawOval((int) n.x-radius, (int) n.y-radius, 2*radius, 2*radius);
 		}
-		String str = tutActive ? (tutPref + modes[mode].tut + tutSuf):help;
+		
+		modes[mode].render(gc, g);
+		
+		g.setColor(Color.white);
+		String str = tutActive ? (tutPref + modes[mode].tut):help;
 		g.drawRect(15, 30, g.getFont().getWidth(str)+10, g.getFont().getHeight(str)+10);
 		g.setColor(Color.black);
 		g.fillRect(15, 30, g.getFont().getWidth(str)+10, g.getFont().getHeight(str)+10);
