@@ -4,17 +4,19 @@ import org.newdawn.slick.Color;
 
 public class Node {
 	
+	public static final Color ON = Color.red, OFF = new Color(0, 240, 0);
+	
 	public double x, y;
 	public boolean clicked;
 	public boolean val;
 	
-	public Node(int x, int y) {
+	public Node(double x, double y) {
 		this.x = x;
 		this.y = y;
 	}
 	
 	public Color getColor() {
-		Color c = val ? Color.green.darker():Color.red;
+		Color c = val ? OFF:ON;
 		if(clicked)
 			c = c.darker();
 		return c;

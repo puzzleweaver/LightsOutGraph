@@ -15,5 +15,6 @@ public abstract class Mode {
 	
 	public abstract void update(Input in);
 	public abstract void render(GameContainer gc, Graphics g);
+	public void renderDown(GameContainer gc, Graphics g) {}
 	
 }

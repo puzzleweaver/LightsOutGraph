@@ -1,6 +1,10 @@
 package main;
 
 import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+import javax.swing.JFileChooser;
+import javax.swing.UIManager;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -27,12 +31,14 @@ public class APIMain extends BasicGame {
 	public static String help = "h : help",
 			tutPref = "h : help\n" + 
 					"t : switch mode\n" +
-					"3 : toggle show numbers\n" +
 					"q : rotate with mouse wheel\n" +
+					"1 : save state\n" +
+					"2 : load state\n" +
+					"3 : toggle show numbers\n" +
 					"esc : exit\n";
 
 	public static int radius = 15, defaultLen = 100, border = 100, sel = -1;
-	
+
 	public static void main(String[] args) {
 		try {
 			AppGameContainer app = new AppGameContainer(new APIMain());
@@ -43,19 +49,24 @@ public class APIMain extends BasicGame {
 			System.out.println(e);
 		}
 	}
-	
+
 	public APIMain(){
 		super("Lights Out Graph Program");
 		System.out.println(modes[0].name);
 	}
-	
+
 	public void init(GameContainer gc) throws SlickException {
 		gc.setShowFPS(false);
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}
 	}
-	
+
 	public void update(GameContainer gc, int arg1) throws SlickException {
 		Input in = gc.getInput();
-		
+
 		propagate();
 
 		// pan function
@@ -93,8 +104,13 @@ public class APIMain extends BasicGame {
 		//  toggle help menu activation
 		if(in.isKeyPressed(Keyboard.KEY_H))
 			tutActive = !tutActive;
+		if(in.isKeyPressed(Keyboard.KEY_1))
+			saveData();
+		if(in.isKeyPressed(Keyboard.KEY_2))
+			loadData();
 		if(in.isKeyPressed(Keyboard.KEY_3))
 			numsShown = !numsShown;
+
 
 		modes[mode].update(in);
 
@@ -116,7 +132,7 @@ public class APIMain extends BasicGame {
 			mode = (mode+1)%modes.length;
 
 	}
-	
+
 	public static void center() {
 		double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
 				maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
@@ -136,7 +152,7 @@ public class APIMain extends BasicGame {
 			nodes.get(i).y = (nodes.get(i).y-minY)*(h-2*border)/d+border;
 		}
 	}
-	
+
 	public static void propagate() {
 		Connection c;
 		for(int i = 0; i < nodes.size(); i++) {
@@ -150,7 +166,7 @@ public class APIMain extends BasicGame {
 				nodes.get(c.a).val = !nodes.get(c.a).val;
 		}
 	}
-	
+
 	public void render(GameContainer gc, Graphics g) throws SlickException {
 		g.setAntiAlias(true);
 		g.setLineWidth(3);
@@ -161,6 +177,9 @@ public class APIMain extends BasicGame {
 			c = cons.get(i);
 			g.drawLine((int) nodes.get(c.a).x, (int) nodes.get(c.a).y, (int) nodes.get(c.b).x, (int) nodes.get(c.b).y);
 		}
+		
+		modes[mode].renderDown(gc, g);
+		
 		for(int i = 0; i < nodes.size(); i++) {
 			n = nodes.get(i);
 			g.setColor(n.getColor());
@@ -181,5 +200,45 @@ public class APIMain extends BasicGame {
 		g.setColor(Color.white);
 		g.drawString(str, 15, 15);
 	}
-	
+
+	public void saveData() {
+		String out = "";
+		for(int i = 0; i < nodes.size(); i++) {
+			out += nodes.get(i).x+" "+nodes.get(i).y + " ";
+		}
+		out += ". ";
+		for(int i = 0; i < cons.size(); i++) {
+			out += cons.get(i).a + " " + cons.get(i).b + (i != cons.size()-1 ? " ":"");
+		}
+		System.out.println(out);
+	}
+	public void loadData() {
+		String in = promptForFile(), tok;
+		nodes = new ArrayList<>();
+		cons = new ArrayList<>();
+		StringTokenizer st = new StringTokenizer(in);
+		try {
+			tok = st.nextToken();
+			while(!tok.equals(".")) {
+				nodes.add(new Node(Double.parseDouble(tok), Double.parseDouble(st.nextToken())));
+				tok = st.nextToken();
+			}
+			while(st.hasMoreTokens()) {
+				cons.add(new Connection(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken())));
+			}
+		}catch(Exception e) {
+			System.err.println("YOU DAIN'T CHOOSE WELL ENOUGH");
+			System.exit(1);
+		}
+	}
+	public String promptForFile() {
+		JFileChooser fc = new JFileChooser();
+		fc.setFileSelectionMode( JFileChooser.FILES_ONLY );
+
+		if( fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION ) {
+			return fc.getSelectedFile().getAbsolutePath();
+		}
+		return null;
+	}
+
 }

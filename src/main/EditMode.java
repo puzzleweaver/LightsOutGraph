@@ -17,7 +17,6 @@ public class EditMode extends Mode {
 				"v : add vertex on click\n" +
 				"d : erase\n" +
 				"c : center frame around vertices\n" +
-				"1 : create square grid\n" +
 				"r : reset vertices\n" + 
 				"m : merge vertices\n",
 				"EDIT");
@@ -27,9 +26,6 @@ public class EditMode extends Mode {
 
 		if(in.isKeyDown(Keyboard.KEY_N))
 			normalize();
-
-		if(in.isKeyPressed(Keyboard.KEY_1))
-			generateGrid();
 
 		if(!in.isKeyDown(Keyboard.KEY_E))
 			eid = -1;
@@ -67,50 +63,51 @@ public class EditMode extends Mode {
 	public void render(GameContainer gc, Graphics g) {
 		int mouseX = gc.getInput().getMouseX();
 		int mouseY = gc.getInput().getMouseY();
-		if(con != -1) {
-			g.setColor(Color.gray);
-			g.drawLine((int) APIMain.nodes.get(con).x, (int) APIMain.nodes.get(con).y, mouseX, mouseY);
-		}
-		if(eid != -1) {
-			g.setColor(Color.gray);
-			g.drawLine((int) APIMain.nodes.get(eid).x, (int) APIMain.nodes.get(eid).y, mouseX, mouseY);
-		}
-		if(merg != -1) {
-			g.setColor(Color.yellow);
-			g.drawLine((int) APIMain.nodes.get(merg).x, (int) APIMain.nodes.get(merg).y, mouseX, mouseY);
-		}
+		g.setColor(Color.yellow);
 		if(gc.getInput().isKeyDown(Keyboard.KEY_V)) {
-			g.setColor(Color.gray);
 			g.drawOval(mouseX-APIMain.radius, mouseY-APIMain.radius, 2*APIMain.radius, 2*APIMain.radius);
 		}
-		if(gc.getInput().isKeyDown(Keyboard.KEY_E) || gc.getInput().isKeyDown(Keyboard.KEY_M)) {
-			boolean b = false;
+		if(con != -1) {
+			g.drawOval((int) (APIMain.nodes.get(con).x-APIMain.radius), (int) (APIMain.nodes.get(con).y-APIMain.radius), 2*APIMain.radius, 2*APIMain.radius);
+		}
+		if(eid != -1) {
+			g.drawOval((int) (APIMain.nodes.get(eid).x-APIMain.radius), (int) (APIMain.nodes.get(eid).y-APIMain.radius), 2*APIMain.radius, 2*APIMain.radius);
+			boolean drawn = false;
 			for(int i = 0; i < APIMain.nodes.size(); i++) {
 				Node n = APIMain.nodes.get(i);
 				if((n.x-mouseX)*(n.x-mouseX)+(n.y-mouseY)*(n.y-mouseY) < APIMain.radius*APIMain.radius) {
-					g.setColor(Color.yellow);
 					g.drawOval((int) (n.x-APIMain.radius), (int) (n.y-APIMain.radius), 2*APIMain.radius, 2*APIMain.radius);
-					b = true;
+					drawn = true;
 					break;
 				}
 			}
-			if(!b && gc.getInput().isKeyDown(Keyboard.KEY_E)) {
-				g.setColor(Color.gray);
-				g.drawOval(mouseX-APIMain.radius, mouseY-APIMain.radius, 2*APIMain.radius, 2*APIMain.radius);
+			if(!drawn)
+				g.drawOval((int) (mouseX-APIMain.radius), (int) (mouseY-APIMain.radius), 2*APIMain.radius, 2*APIMain.radius);
+		}
+		if(merg != -1) {
+			g.drawOval((int) (APIMain.nodes.get(merg).x-APIMain.radius), (int) (APIMain.nodes.get(merg).y-APIMain.radius), 2*APIMain.radius, 2*APIMain.radius);
+			for(int i = 0; i < APIMain.nodes.size(); i++) {
+				Node n = APIMain.nodes.get(i);
+				if((n.x-mouseX)*(n.x-mouseX)+(n.y-mouseY)*(n.y-mouseY) < APIMain.radius*APIMain.radius) {
+					g.drawOval((int) (n.x-APIMain.radius), (int) (n.y-APIMain.radius), 2*APIMain.radius, 2*APIMain.radius);
+					g.drawOval((int) ((n.x+APIMain.nodes.get(merg).x)/2-APIMain.radius), (int) ((n.y+APIMain.nodes.get(merg).y)/2-APIMain.radius), 2*APIMain.radius, 2*APIMain.radius);
+					break;
+				}
 			}
 		}
 	}
-	
-	public void generateGrid() {
-
-		for(int j = 0; j < 5; j++) {
-			for(int i = 0; i < 5; i++) {
-				APIMain.nodes.add(new Node(APIMain.mouseX-125+50*i, APIMain.mouseY-125+50*j));
-				if(i != 0)
-					APIMain.cons.add(new Connection(APIMain.nodes.size()-2, APIMain.nodes.size()-1));
-				if(j != 0)
-					APIMain.cons.add(new Connection(APIMain.nodes.size()-6, APIMain.nodes.size()-1));
-			}
+	public void renderDown(GameContainer gc, Graphics g) {
+		int mouseX = gc.getInput().getMouseX();
+		int mouseY = gc.getInput().getMouseY();
+		g.setColor(Color.yellow);
+		if(con != -1) {
+			g.drawLine((int) APIMain.nodes.get(con).x, (int) APIMain.nodes.get(con).y, mouseX, mouseY);
+		}
+		if(eid != -1) {
+			g.drawLine((int) APIMain.nodes.get(eid).x, (int) APIMain.nodes.get(eid).y, mouseX, mouseY);
+		}
+		if(merg != -1) {
+			g.drawLine((int) APIMain.nodes.get(merg).x, (int) APIMain.nodes.get(merg).y, mouseX, mouseY);
 		}
 	}
 	
