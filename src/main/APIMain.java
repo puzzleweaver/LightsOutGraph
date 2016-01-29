@@ -24,7 +24,7 @@ public class APIMain extends BasicGame {
 	public static ArrayList<Node> nodes = new ArrayList<>();
 	public static ArrayList<Connection> cons = new ArrayList<>();
 	public static int mouseX, mouseY, mouseWheel;
-	public static final Mode[] modes = {new EditMode(), new SolveMode()};
+	public static final Mode[] modes = {new EditMode(), new SolveMode(), new SelectMode()};
 	public static int mode = 0;
 
 	public static boolean tutActive = false, numsShown = false;
