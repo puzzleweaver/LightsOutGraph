@@ -40,7 +40,7 @@ public class EditMode extends Mode {
 				addToChain();
 		}
 		else if(in.isKeyDown(Keyboard.KEY_M)) {
-			if(in.isMousePressed(0))
+			if(in.isMousePressed(0) || (!in.isMouseButtonDown(0) && merg != -1))
 				merge();
 		}
 		else if(in.isKeyDown(Keyboard.KEY_V)) {
@@ -131,6 +131,13 @@ public class EditMode extends Mode {
 				Node n = APIMain.nodes.get(i);
 				if((n.x-x)*(n.x-x)+(n.y-y)*(n.y-y) < APIMain.radius*APIMain.radius) {
 					if(i == eid) return;
+					for(int j = 0; j < APIMain.cons.size(); j++) {
+						if(APIMain.cons.get(j).a == i && APIMain.cons.get(j).b == eid ||
+								APIMain.cons.get(j).b == i && APIMain.cons.get(j).a == eid) {
+							eid = i;
+							return;
+						}
+					}
 					APIMain.cons.add(new Connection(eid, i));
 					eid = i;
 					return;

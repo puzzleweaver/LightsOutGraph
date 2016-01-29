@@ -14,9 +14,9 @@ public class Node {
 	}
 	
 	public Color getColor() {
-		Color c = val ? Color.green:Color.red;
+		Color c = val ? Color.green.darker():Color.red;
 		if(clicked)
-			c = c.darker().darker();
+			c = c.darker();
 		return c;
 	}
 	
