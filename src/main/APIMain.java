@@ -1,5 +1,9 @@
 package main;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -177,9 +181,9 @@ public class APIMain extends BasicGame {
 			c = cons.get(i);
 			g.drawLine((int) nodes.get(c.a).x, (int) nodes.get(c.a).y, (int) nodes.get(c.b).x, (int) nodes.get(c.b).y);
 		}
-		
+
 		modes[mode].renderDown(gc, g);
-		
+
 		for(int i = 0; i < nodes.size(); i++) {
 			n = nodes.get(i);
 			g.setColor(n.getColor());
@@ -210,10 +214,17 @@ public class APIMain extends BasicGame {
 		for(int i = 0; i < cons.size(); i++) {
 			out += cons.get(i).a + " " + cons.get(i).b + (i != cons.size()-1 ? " ":"");
 		}
-		System.out.println(out);
+		try(PrintWriter pw = new PrintWriter(promptForFile("Save To..."))){
+			pw.println(out);
+		} catch (FileNotFoundException e) {}
 	}
 	public void loadData() {
-		String in = promptForFile(), tok;
+		String in = "", tok;
+		try {
+			byte[] encoded = Files.readAllBytes(Paths.get(promptForFile("Open")));
+			new String(encoded);
+			in = new String(encoded);
+		}catch(Exception e) {}
 		nodes = new ArrayList<>();
 		cons = new ArrayList<>();
 		StringTokenizer st = new StringTokenizer(in);
@@ -227,14 +238,15 @@ public class APIMain extends BasicGame {
 				cons.add(new Connection(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken())));
 			}
 		}catch(Exception e) {
+			e.printStackTrace();
 			System.err.println("YOU DAIN'T CHOOSE WELL ENOUGH");
 			System.exit(1);
 		}
 	}
-	public String promptForFile() {
+	public String promptForFile(String title) {
 		JFileChooser fc = new JFileChooser();
 		fc.setFileSelectionMode( JFileChooser.FILES_ONLY );
-
+		fc.setDialogTitle(title);
 		if( fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION ) {
 			return fc.getSelectedFile().getAbsolutePath();
 		}
