@@ -28,6 +28,7 @@ public class APIMain extends BasicGame {
 	public static String help = "h : help",
 			tutPref = "h : help\n" + 
 					"t : switch mode\n" +
+					"3 : show numbers\n" +
 					"esc : exit\n";
 
 	public static int radius = 15, defaultLen = 100, border = 100, sel = -1;
@@ -99,11 +100,11 @@ public class APIMain extends BasicGame {
 			for(int i = 0; i < nodes.size(); i++) {
 				if(nodes.get(i).x < minX)
 					minX = nodes.get(i).x;
-				else if(nodes.get(i).x > maxX)
+				if(nodes.get(i).x > maxX)
 					maxX = nodes.get(i).x;
 				if(nodes.get(i).y < minY)
 					minY = nodes.get(i).y;
-				else if(nodes.get(i).y > maxY)
+				if(nodes.get(i).y > maxY)
 					maxY = nodes.get(i).y;
 			}
 			double d = Math.max(maxX-minX, maxY-minY);
@@ -139,7 +140,8 @@ public class APIMain extends BasicGame {
 			g.fillOval((int) n.x-radius, (int) n.y-radius, 2*radius, 2*radius);
 			g.setColor(Color.white);
 			g.drawOval((int) n.x-radius, (int) n.y-radius, 2*radius, 2*radius);
-			g.drawString(""+i, (int) n.x-radius, (int) n.y-radius);
+			if(gc.getInput().isKeyDown(Keyboard.KEY_3))
+				g.drawString(""+i, (int) n.x-g.getFont().getWidth(""+i)+radius/2, (int) n.y-g.getFont().getHeight(""+i)+radius/2);
 		}
 		
 		modes[mode].render(gc, g);

@@ -36,12 +36,18 @@ public class EditMode extends Mode {
 			eid = -1;
 		if(!in.isKeyDown(Keyboard.KEY_M))
 			merg = -1;
-		if(in.isKeyDown(Keyboard.KEY_E) && in.isMousePressed(0))
-			addToChain();
-		else if(in.isKeyDown(Keyboard.KEY_M) && in.isMousePressed(0))
-			merge();
-		else if(in.isKeyDown(Keyboard.KEY_V) && in.isMousePressed(0))
-			addVertice();
+		if(in.isKeyDown(Keyboard.KEY_E)) {
+			if(in.isMousePressed(0))
+				addToChain();
+		}
+		else if(in.isKeyDown(Keyboard.KEY_M)) {
+			if(in.isMousePressed(0))
+				merge();
+		}
+		else if(in.isKeyDown(Keyboard.KEY_V)) {
+			if(in.isMousePressed(0))
+				addVertice();
+		}
 		else if(in.isKeyDown(Keyboard.KEY_D) && in.isMouseButtonDown(0))
 			deleteVertices();
 		else if(in.isMouseButtonDown(0))
@@ -63,6 +69,15 @@ public class EditMode extends Mode {
 		if(con != -1) {
 			g.setColor(Color.gray);
 			g.drawLine((int) APIMain.nodes.get(con).x, (int) APIMain.nodes.get(con).y, gc.getInput().getMouseX(), gc.getInput().getMouseY());
+		}
+		if(eid != -1) {
+			g.setColor(Color.gray);
+			g.drawLine((int) APIMain.nodes.get(eid).x, (int) APIMain.nodes.get(eid).y, gc.getInput().getMouseX(), gc.getInput().getMouseY());
+			g.drawOval(gc.getInput().getMouseX()-APIMain.radius, gc.getInput().getMouseY()-APIMain.radius, 2*APIMain.radius, 2*APIMain.radius);
+		}
+		if(merg != -1) {
+			g.setColor(Color.yellow);
+			g.drawOval((int) APIMain.nodes.get(merg).x-APIMain.radius, (int) APIMain.nodes.get(merg).y-APIMain.radius, 2*APIMain.radius, 2*APIMain.radius);
 		}
 		if(gc.getInput().isKeyDown(Keyboard.KEY_V)) {
 			g.setColor(Color.gray);
@@ -221,7 +236,6 @@ public class EditMode extends Mode {
 					APIMain.nodes.add(new Node((int) (APIMain.nodes.get(i).x+APIMain.nodes.get(merg).x)/2,
 							(int) (APIMain.nodes.get(i).y+APIMain.nodes.get(merg).y)/2));
 					for(int j = 0; j < ids.size(); j++) {
-						System.out.println(ids.get(j));
 						APIMain.cons.add(new Connection(APIMain.nodes.size()-1, ids.get(j)));
 					}
 					removeVertice(i);
