@@ -11,7 +11,7 @@ import org.newdawn.slick.Input;
 public class EditMode extends Mode {
 
 	private int eid = -1, con = -1, merg = -1;
-
+	
 	public EditMode() {
 		super("n : normalize\n" +
 				"v : add vertex on click\n" +
@@ -22,7 +22,7 @@ public class EditMode extends Mode {
 				"m : merge vertices\n",
 				"EDIT");
 	}
-
+	
 	public void update(Input in) {
 
 		if(in.isKeyDown(Keyboard.KEY_N))
@@ -65,26 +65,42 @@ public class EditMode extends Mode {
 
 	}
 	public void render(GameContainer gc, Graphics g) {
+		int mouseX = gc.getInput().getMouseX();
+		int mouseY = gc.getInput().getMouseY();
 		if(con != -1) {
 			g.setColor(Color.gray);
-			g.drawLine((int) APIMain.nodes.get(con).x, (int) APIMain.nodes.get(con).y, gc.getInput().getMouseX(), gc.getInput().getMouseY());
+			g.drawLine((int) APIMain.nodes.get(con).x, (int) APIMain.nodes.get(con).y, mouseX, mouseY);
 		}
 		if(eid != -1) {
 			g.setColor(Color.gray);
-			g.drawLine((int) APIMain.nodes.get(eid).x, (int) APIMain.nodes.get(eid).y, gc.getInput().getMouseX(), gc.getInput().getMouseY());
-			g.drawOval(gc.getInput().getMouseX()-APIMain.radius, gc.getInput().getMouseY()-APIMain.radius, 2*APIMain.radius, 2*APIMain.radius);
+			g.drawLine((int) APIMain.nodes.get(eid).x, (int) APIMain.nodes.get(eid).y, mouseX, mouseY);
 		}
 		if(merg != -1) {
 			g.setColor(Color.yellow);
-			g.drawLine((int) APIMain.nodes.get(merg).x, (int) APIMain.nodes.get(merg).y, gc.getInput().getMouseX(), gc.getInput().getMouseY());
-			g.drawOval((int) APIMain.nodes.get(merg).x-APIMain.radius, (int) APIMain.nodes.get(merg).y-APIMain.radius, 2*APIMain.radius, 2*APIMain.radius);
+			g.drawLine((int) APIMain.nodes.get(merg).x, (int) APIMain.nodes.get(merg).y, mouseX, mouseY);
 		}
 		if(gc.getInput().isKeyDown(Keyboard.KEY_V)) {
 			g.setColor(Color.gray);
-			g.drawOval(gc.getInput().getMouseX()-APIMain.radius, gc.getInput().getMouseY()-APIMain.radius, 2*APIMain.radius, 2*APIMain.radius);
+			g.drawOval(mouseX-APIMain.radius, mouseY-APIMain.radius, 2*APIMain.radius, 2*APIMain.radius);
+		}
+		if(gc.getInput().isKeyDown(Keyboard.KEY_E) || gc.getInput().isKeyDown(Keyboard.KEY_M)) {
+			boolean b = false;
+			for(int i = 0; i < APIMain.nodes.size(); i++) {
+				Node n = APIMain.nodes.get(i);
+				if((n.x-mouseX)*(n.x-mouseX)+(n.y-mouseY)*(n.y-mouseY) < APIMain.radius*APIMain.radius) {
+					g.setColor(Color.yellow);
+					g.drawOval((int) (n.x-APIMain.radius), (int) (n.y-APIMain.radius), 2*APIMain.radius, 2*APIMain.radius);
+					b = true;
+					break;
+				}
+			}
+			if(!b && gc.getInput().isKeyDown(Keyboard.KEY_E)) {
+				g.setColor(Color.gray);
+				g.drawOval(mouseX-APIMain.radius, mouseY-APIMain.radius, 2*APIMain.radius, 2*APIMain.radius);
+			}
 		}
 	}
-
+	
 	public void generateGrid() {
 
 		for(int j = 0; j < 5; j++) {
@@ -97,7 +113,7 @@ public class EditMode extends Mode {
 			}
 		}
 	}
-
+	
 	public void normalize() {
 		//  normalize functionality
 		Node a, b;
@@ -141,11 +157,11 @@ public class EditMode extends Mode {
 			eid = APIMain.nodes.size()-1;
 		}
 	}
-
+	
 	public void addVertice() {
 		APIMain.nodes.add(new Node(APIMain.mouseX, APIMain.mouseY));
 	}
-
+	
 	public void deleteVertices() {
 		int x = APIMain.mouseX, y = APIMain.mouseY;
 		for(int i = 0; i < APIMain.nodes.size(); i++) {
@@ -156,7 +172,7 @@ public class EditMode extends Mode {
 			}
 		}
 	}
-
+	
 	public void selectVertices() {
 		if(APIMain.sel == -1) {
 			for(int i = 0; i < APIMain.nodes.size(); i++) {
@@ -168,7 +184,7 @@ public class EditMode extends Mode {
 			}
 		}
 	}
-
+	
 	public void startConnection() {
 		for(int i = 0; i < APIMain.nodes.size(); i++) {
 			Node n = APIMain.nodes.get(i);
@@ -256,7 +272,7 @@ public class EditMode extends Mode {
 			APIMain.cons.remove(0);
 		}
 	}
-
+	
 	public void removeVertice(int i) {
 		APIMain.nodes.remove(i);
 		for(int j = 0; j < APIMain.cons.size(); j++) {
@@ -271,5 +287,5 @@ public class EditMode extends Mode {
 			}
 		}
 	}
-
+	
 }

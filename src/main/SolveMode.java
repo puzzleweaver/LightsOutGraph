@@ -52,6 +52,7 @@ public class SolveMode extends Mode {
 	
 	public void solve() {
 		reset();
+		APIMain.propagate();
 		for(int i = 0; i < APIMain.nodes.size(); i++) {
 			if(APIMain.nodes.get(i).val == false) {
 				solve(i);
@@ -139,6 +140,7 @@ public class SolveMode extends Mode {
 				}
 			}
 		}
+		APIMain.propagate();
 	}
 	
 	//given a list of terms, create a new term where the variables are XORed
