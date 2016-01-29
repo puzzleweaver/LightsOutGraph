@@ -24,11 +24,12 @@ public class APIMain extends BasicGame {
 	public static final Mode[] modes = {new EditMode(), new SolveMode()};
 	public static int mode = 0;
 
-	public static boolean tutActive = false;
+	public static boolean tutActive = false, numsShown = false;
 	public static String help = "h : help",
 			tutPref = "h : help\n" + 
 					"t : switch mode\n" +
-					"3 : show numbers\n" +
+					"3 : toggle show numbers\n" +
+					"q : rotate with mouse wheel\n" +
 					"esc : exit\n";
 
 	public static int radius = 15, defaultLen = 100, border = 100, sel = -1;
@@ -50,7 +51,7 @@ public class APIMain extends BasicGame {
 	}
 
 	public void init(GameContainer arg0) throws SlickException {
-		
+
 	}
 
 	public void update(GameContainer gc, int arg1) throws SlickException {
@@ -67,28 +68,35 @@ public class APIMain extends BasicGame {
 		mouseX = in.getMouseX();
 		mouseY = in.getMouseY();
 
-		// zoom function
+		// zoom and rotate functions
 		mouseWheel = Mouse.getDWheel();
 		if(mouseWheel != 0) {
-			if(mouseWheel < 0) {
+			if(in.isKeyDown(Keyboard.KEY_Q)) {
+				double d, t;
 				for(int i = 0; i < nodes.size(); i++) {
-					nodes.get(i).x = (nodes.get(i).x-mouseX)*0.9+mouseX;
-					nodes.get(i).y = (nodes.get(i).y-mouseY)*0.9+mouseY;
+					nodes.get(i).x = nodes.get(i).x-w/2;
+					nodes.get(i).y = nodes.get(i).y-h/2;
+					d = Math.hypot(nodes.get(i).x, nodes.get(i).y);
+					t = Math.atan2(nodes.get(i).y, nodes.get(i).x);
+					t += mouseWheel < 0 ? -0.1:0.1;
+					nodes.get(i).x = Math.cos(t)*d+w/2;
+					nodes.get(i).y = Math.sin(t)*d+h/2;
 				}
 			}else {
 				for(int i = 0; i < nodes.size(); i++) {
-					nodes.get(i).x = (nodes.get(i).x-mouseX)*1.111+mouseX;
-					nodes.get(i).y = (nodes.get(i).y-mouseY)*1.111+mouseY;
+					nodes.get(i).x = (nodes.get(i).x-mouseX)*(mouseWheel > 0 ? 0.9:1.111)+mouseX;
+					nodes.get(i).y = (nodes.get(i).y-mouseY)*(mouseWheel > 0 ? 0.9:1.111)+mouseY;
 				}
 			}
 		}
 		//  toggle help menu activation
-		if(in.isKeyPressed(Keyboard.KEY_H)) {
+		if(in.isKeyPressed(Keyboard.KEY_H))
 			tutActive = !tutActive;
-		}
-		
+		if(in.isKeyPressed(Keyboard.KEY_3))
+			numsShown = !numsShown;
+
 		modes[mode].update(in);
-		
+
 		//  exit functionality
 		if(in.isKeyDown(Keyboard.KEY_ESCAPE)) {
 			System.exit(0);
@@ -119,10 +127,10 @@ public class APIMain extends BasicGame {
 			nodes.get(sel).x = in.getMouseX();
 			nodes.get(sel).y = in.getMouseY();
 		}
-		
+
 		if(in.isKeyPressed(Keyboard.KEY_T))
 			mode = (mode+1)%modes.length;
-		
+
 	}
 
 	public void render(GameContainer gc, Graphics g) throws SlickException {
@@ -140,12 +148,12 @@ public class APIMain extends BasicGame {
 			g.fillOval((int) n.x-radius, (int) n.y-radius, 2*radius, 2*radius);
 			g.setColor(Color.white);
 			g.drawOval((int) n.x-radius, (int) n.y-radius, 2*radius, 2*radius);
-			if(gc.getInput().isKeyDown(Keyboard.KEY_3))
+			if(numsShown)
 				g.drawString(""+i, (int) n.x-g.getFont().getWidth(""+i)+radius/2, (int) n.y-g.getFont().getHeight(""+i)+radius/2);
 		}
-		
+
 		modes[mode].render(gc, g);
-		
+
 		g.setColor(Color.white);
 		String str = tutActive ? (tutPref + modes[mode].tut):help;
 		g.drawRect(15, 30, g.getFont().getWidth(str)+10, g.getFont().getHeight(str)+10);

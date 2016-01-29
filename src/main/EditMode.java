@@ -19,8 +19,7 @@ public class EditMode extends Mode {
 				"c : center frame around vertices\n" +
 				"1 : create square grid\n" +
 				"r : reset vertices\n" + 
-				"m : merge vertices\n" +
-				"q : rotate, use mouse wheel\n",
+				"m : merge vertices\n",
 				"EDIT");
 	}
 
