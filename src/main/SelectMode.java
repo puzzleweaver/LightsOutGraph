@@ -35,7 +35,7 @@ public class SelectMode extends Mode {
 					}
 				}
 				if(node == -1) {
-					GH.nodes.add(new Node(in.getMouseX(), in.getMouseY()));
+					GH.addVertex(mouseX, mouseY);
 					node = GH.nodes.size()-1;
 				}
 				for(int i = 0; i < selected.size(); i++) {
@@ -126,13 +126,13 @@ public class SelectMode extends Mode {
 		int mouseX = gc.getInput().getMouseX();
 		int mouseY = gc.getInput().getMouseY();
 		g.setColor(Color.blue.brighter());
-		Connection c;
-		for (int i = 0; i < GH.cons.size(); i++) {
-			c = GH.cons.get(i);
-			if (selected.contains(c.a) && selected.contains(c.b)) {
-				Node n1 = GH.nodes.get(c.a);
-				Node n2 = GH.nodes.get(c.b);
-				g.drawLine((int) n1.x, (int) n1.y, (int) n2.x, (int) n2.y);
+		for (int i = 0; i < selected.size(); i++) {
+			for(int j = 0; j < selected.size(); j++) {
+				if(GH.conss.get(selected.get(i)).get(selected.get(j))) {
+					Node n1 = GH.nodes.get(selected.get(i));
+					Node n2 = GH.nodes.get(selected.get(j));
+					g.drawLine((int) n1.x, (int) n1.y, (int) n2.x, (int) n2.y);
+				}
 			}
 		}
 		g.setColor(Color.yellow);
@@ -153,17 +153,9 @@ public class SelectMode extends Mode {
 	
 	public void floodFill(int n) {
 		selected.add(n);
-		Connection c;
-		for (int i = 0; i < GH.cons.size(); i++) {
-			c = GH.cons.get(i);
-			if (c.a == n) {
-				if (!selected.contains(c.b))
-					floodFill(c.b);
-			} else if (c.b == n) {
-				if (!selected.contains(c.a))
-					floodFill(c.a);
-			}
-		}
+		for(int i = 0; i < GH.nodes.size(); i++)
+			if(GH.conss.get(n).get(i) && !selected.contains(i))
+				floodFill(i);
 	}
 	
 }

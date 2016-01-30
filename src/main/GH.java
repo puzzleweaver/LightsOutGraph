@@ -93,10 +93,10 @@ public class GH {
 	}
 
 	public static void propagate() {
-		Connection c;
 		for(int i = 0; i < nodes.size(); i++) {
+			nodes.get(i).val = nodes.get(i).clicked;
 			for(int j = 0; j < nodes.size(); j++)
-				nodes.get(i).val ^= nodes.get(j).clicked;
+				nodes.get(i).val ^= nodes.get(j).clicked && conss.get(i).get(j);
 		}
 	}
 

@@ -20,14 +20,9 @@ public class SolveMode extends Mode {
 		
 		if(in.isMousePressed(0)) {
 			int x = in.getMouseX(), y = in.getMouseY();
-			Node n;
-			Connection c;
-			for(int i = 0; i < GH.nodes.size(); i++) {
-				n = GH.nodes.get(i);
-				if((n.x-x)*(n.x-x)+(n.y-y)*(n.y-y) < Node.radius*Node.radius) {
+			for(int i = 0; i < GH.nodes.size(); i++)
+				if(GH.nodes.get(i).check(x, y))
 					GH.nodes.get(i).trigger();
-				}
-			}
 		}
 		
 		if(in.isKeyPressed(Keyboard.KEY_R)) {
@@ -74,18 +69,12 @@ public class SolveMode extends Mode {
 			//discovered means it was put in terms of variables
 			ArrayList<Integer> undiscovered = new ArrayList<>();
 			ArrayList<Integer> discovered = new ArrayList<>();
-			for(int i = 0; i < GH.cons.size(); i++) {
-				Connection c = GH.cons.get(i);
-				if(c.a == n) {
-					if(terms[c.b] == null)
-						undiscovered.add(c.b);
+			for(int i = 0; i < GH.conss.size(); i++) {
+				if(GH.conss.get(i).get(n)) {
+					if(terms[i] == null)
+						undiscovered.add(i);
 					else
-						discovered.add(c.b);
-				}else if(c.b == n) {
-					if(terms[c.a] == null)
-						undiscovered.add(c.a);
-					else
-						discovered.add(c.a);
+						discovered.add(i);
 				}
 			}
 			if(undiscovered.size() == 0) {
