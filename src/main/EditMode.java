@@ -51,6 +51,9 @@ public class EditMode extends Mode {
 		}else if(in.isKeyDown(Input.KEY_V) && !in.isKeyDown(Input.KEY_LCONTROL)) {
 			if(in.isMousePressed(0))
 				addVertex();
+		}else if(in.isKeyDown(Input.KEY_X)) {
+			if(in.isMousePressed(0))
+				extrude();
 		}else if(in.isMousePressed(0))
 			selectVertices(in.isKeyDown(Input.KEY_F), in.isKeyDown(Input.KEY_LCONTROL));
 		else if(in.isMouseButtonDown(0))
@@ -87,7 +90,24 @@ public class EditMode extends Mode {
 			if(!b)
 				Node.draw(g, APIMain.mouseX, APIMain.mouseY);
 		}
-		g.setColor(Color.yellow);
+		if(gc.getInput().isKeyDown(Input.KEY_X)) {
+			int avgX = 0, avgY = 0;
+			ArrayList<Integer> refs = new ArrayList<Integer>();
+			for(int i = 0; i < GH.nodes.size(); i++) {
+				if(GH.nodes.get(i).sel) {
+					refs.add(i);
+					avgX += GH.nodes.get(i).x;
+					avgY += GH.nodes.get(i).y;
+				}
+			}
+			if(refs.size() > 0) {
+				avgX /= refs.size();
+				avgY /= refs.size();
+				for(int i = 0; i < refs.size(); i++)
+					Node.draw(g, (int) (APIMain.mouseX + GH.nodes.get(refs.get(i)).x - avgX), 
+							(int) (APIMain.mouseY + GH.nodes.get(refs.get(i)).y - avgY));
+			}
+		}
 		if(gc.getInput().isKeyDown(Keyboard.KEY_V) && !gc.getInput().isKeyDown(Keyboard.KEY_LCONTROL))
 			Node.draw(g, APIMain.mouseX, APIMain.mouseY);
 		if(con != -1)
@@ -129,6 +149,38 @@ public class EditMode extends Mode {
 					Node n = GH.nodes.get(i);
 					g.drawLine((int) n.x, (int) n.y, APIMain.mouseX, APIMain.mouseY);
 				}
+		if(gc.getInput().isKeyDown(Input.KEY_X)) {
+			int avgX = 0, avgY = 0;
+			ArrayList<Integer> refs = new ArrayList<Integer>();
+			for(int i = 0; i < GH.nodes.size(); i++) {
+				if(GH.nodes.get(i).sel) {
+					refs.add(i);
+					avgX += GH.nodes.get(i).x;
+					avgY += GH.nodes.get(i).y;
+				}
+			}
+			if(refs.size() > 0) {
+				avgX /= refs.size();
+				avgY /= refs.size();
+				for(int i = 0; i < refs.size(); i++) {
+					Node n1 = GH.nodes.get(refs.get(i));
+					int x = (int) (APIMain.mouseX + GH.nodes.get(refs.get(i)).x - avgX); 
+					int y = (int) (APIMain.mouseY + GH.nodes.get(refs.get(i)).y - avgY);
+					g.drawLine((int) n1.x, (int) n1.y, x, y);
+				}
+				for(int i = 0; i < refs.size(); i++) {
+					for(int j = i+1; j < refs.size(); j++) {
+						if(GH.cons.get(refs.get(i)).get(refs.get(j))) {
+							int x1 = (int) (APIMain.mouseX + GH.nodes.get(refs.get(i)).x - avgX);
+							int y1 = (int) (APIMain.mouseY + GH.nodes.get(refs.get(i)).y - avgY);
+							int x2 = (int) (APIMain.mouseX + GH.nodes.get(refs.get(j)).x - avgX);
+							int y2 = (int) (APIMain.mouseY + GH.nodes.get(refs.get(j)).y - avgY);
+							g.drawLine(x1, y1, x2, y2);
+						}
+					}
+				}
+			}
+		}
 		g.setColor(Color.yellow);
 		if(con != -1)
 			g.drawLine((int) GH.nodes.get(con).x, (int) GH.nodes.get(con).y, APIMain.mouseX, APIMain.mouseY);
@@ -167,6 +219,32 @@ public class EditMode extends Mode {
 			for(int j = 0; j < GH.nodes.size(); j++)
 				if(GH.nodes.get(i).sel && GH.nodes.get(j).sel)
 					GH.addConnection(i, j);
+	}
+	public void extrude() {
+		int avgX = 0, avgY = 0;
+		ArrayList<Integer> refs = new ArrayList<Integer>();
+		for(int i = 0; i < GH.nodes.size(); i++) {
+			if(GH.nodes.get(i).sel) {
+				refs.add(i);
+				avgX += GH.nodes.get(i).x;
+				avgY += GH.nodes.get(i).y;
+			}
+		}
+		if(refs.size() > 0) {
+			resetSelections();
+			avgX /= refs.size();
+			avgY /= refs.size();
+			for(int i = 0; i < refs.size(); i++) {
+				GH.addVertex((int) (APIMain.mouseX + GH.nodes.get(refs.get(i)).x - avgX),
+						(int) (APIMain.mouseY + GH.nodes.get(refs.get(i)).y - avgY));
+				GH.nodes.get(GH.nodes.size()-1).sel = true;
+				GH.addConnection(refs.get(i), GH.nodes.size()-1);
+			}
+			for(int i = 0; i < refs.size(); i++)
+				for(int j = i+1; j < refs.size(); j++)
+					if(GH.cons.get(refs.get(i)).get(refs.get(j)))
+						GH.addConnection(GH.nodes.size() - refs.size() + i, GH.nodes.size() - refs.size() + j);
+		}
 	}
 	
 	public void addVertex() {
@@ -299,7 +377,7 @@ public class EditMode extends Mode {
 				refs.add(i);
 			}
 		for(int i = 0; i < copyNodes.size(); i++) {
-			copyMat.add(new ArrayList<>());
+			copyMat.add(new ArrayList<Boolean>());
 			for(int j = 0; j < copyNodes.size(); j++)
 				copyMat.get(i).add(GH.cons.get(refs.get(i)).get(refs.get(j)));
 		}
@@ -316,7 +394,7 @@ public class EditMode extends Mode {
 			GH.nodes.get(GH.nodes.size()-1).sel = true;
 		}
 		for(int i = 0; i < copyMat.size(); i++) {
-			for(int j = 0; j < copyMat.size(); j++) {
+			for(int j = i+1; j < copyMat.size(); j++) {
 				if(copyMat.get(i).get(j)) {
 					GH.addConnection(GH.nodes.size()-copyNodes.size()+i, GH.nodes.size()-copyNodes.size()+j);
 				}
