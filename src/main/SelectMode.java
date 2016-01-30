@@ -39,9 +39,7 @@ public class SelectMode extends Mode {
 					node = APIMain.nodes.size()-1;
 				}
 				for(int i = 0; i < selected.size(); i++) {
-					if(node != selected.get(i)) {
-						APIMain.cons.add(new Connection(node, selected.get(i)));
-					}
+					APIMain.addConnection(node, selected.get(i));
 				}
 				selected.clear();
 			}else {
