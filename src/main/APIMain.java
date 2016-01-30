@@ -1,12 +1,5 @@
 package main;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-
 import javax.swing.JFileChooser;
 import javax.swing.UIManager;
 
@@ -69,7 +62,7 @@ public class APIMain extends BasicGame {
 	public void update(GameContainer gc, int arg1) throws SlickException {
 		Input in = gc.getInput();
 
-		propagate();
+		GH.propagate();
 
 		// pan function
 		if(in.isMouseButtonDown(2)) {
@@ -157,20 +150,6 @@ public class APIMain extends BasicGame {
 		}
 	}
 
-	public static void propagate() {
-		Connection c;
-		for(int i = 0; i < GH.nodes.size(); i++) {
-			GH.nodes.get(i).val = GH.nodes.get(i).clicked;
-		}
-		for(int i = 0; i < GH.cons.size(); i++) {
-			c = GH.cons.get(i);
-			if(GH.nodes.get(c.a).clicked)
-				GH.nodes.get(c.b).val = !GH.nodes.get(c.b).val;
-			if(GH.nodes.get(c.b).clicked)
-				GH.nodes.get(c.a).val = !GH.nodes.get(c.a).val;
-		}
-	}
-
 	public void render(GameContainer gc, Graphics g) throws SlickException {
 		g.setAntiAlias(true);
 		g.setLineWidth(3);
@@ -204,42 +183,8 @@ public class APIMain extends BasicGame {
 	}
 
 	public void saveData() {
-		String out = "";
-		for(int i = 0; i < GH.nodes.size(); i++) {
-			out += GH.nodes.get(i).x+" "+GH.nodes.get(i).y + " ";
-		}
-		out += ". ";
-		for(int i = 0; i < GH.cons.size(); i++) {
-			out += GH.cons.get(i).a + " " + GH.cons.get(i).b + (i != GH.cons.size()-1 ? " ":"");
-		}
-		try(PrintWriter pw = new PrintWriter(promptForFile("Save To..."))){
-			pw.println(out);
-		} catch (FileNotFoundException e) {}
 	}
 	public void loadData() {
-		String in = "", tok;
-		try {
-			byte[] encoded = Files.readAllBytes(Paths.get(promptForFile("Open")));
-			new String(encoded);
-			in = new String(encoded);
-		}catch(Exception e) {}
-		GH.nodes = new ArrayList<>();
-		GH.cons = new ArrayList<>();
-		StringTokenizer st = new StringTokenizer(in);
-		try {
-			tok = st.nextToken();
-			while(!tok.equals(".")) {
-				GH.nodes.add(new Node(Double.parseDouble(tok), Double.parseDouble(st.nextToken())));
-				tok = st.nextToken();
-			}
-			while(st.hasMoreTokens()) {	
-				GH.cons.add(new Connection(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken())));
-			}
-		}catch(Exception e) {
-			e.printStackTrace();
-			System.err.println("YOU DAIN'T CHOOSE WELL ENOUGH");
-			System.exit(1);
-		}
 	}
 	
 	public String promptForFile(String title) {

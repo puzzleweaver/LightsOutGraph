@@ -52,7 +52,7 @@ public class SolveMode extends Mode {
 	
 	public void solve() {
 		reset();
-		APIMain.propagate();
+		GH.propagate();
 		for(int i = 0; i < GH.nodes.size(); i++) {
 			if(GH.nodes.get(i).val == false) {
 				solve(i);
@@ -140,7 +140,7 @@ public class SolveMode extends Mode {
 				}
 			}
 		}
-		APIMain.propagate();
+		GH.propagate();
 	}
 	
 	//given a list of terms, create a new term where the variables are XORed
