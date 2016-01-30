@@ -24,7 +24,7 @@ public class APIMain extends BasicGame {
 
 	//	public static int w = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
 	//			h = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-	public static int w = 600, h = 600;
+	public static int w = 800, h = 800;
 	public static ArrayList<Node> nodes = new ArrayList<>();
 	public static ArrayList<Connection> cons = new ArrayList<>();
 	public static int mouseX, mouseY, mouseWheel;
@@ -34,7 +34,7 @@ public class APIMain extends BasicGame {
 	public static boolean tutActive = false, numsShown = false;
 	public static String help = "h : help",
 			tutPref = "h : help\n" + 
-					"t : switch mode\n" +
+					"arrow keys : switch modes\n" +
 					"q : rotate with mouse wheel\n" +
 					"1 : save state\n" +
 					"2 : load state\n" +
@@ -132,8 +132,10 @@ public class APIMain extends BasicGame {
 			nodes.get(sel).y = in.getMouseY();
 		}
 
-		if(in.isKeyPressed(Keyboard.KEY_T))
+		if(in.isKeyPressed(Keyboard.KEY_RIGHT))
 			mode = (mode+1)%modes.length;
+		if(in.isKeyPressed(Keyboard.KEY_LEFT))
+			mode = (mode+modes.length-1)%modes.length;
 
 	}
 
@@ -197,12 +199,23 @@ public class APIMain extends BasicGame {
 		modes[mode].render(gc, g);
 
 		g.setColor(Color.white);
-		String str = modes[mode].name + "    " +(tutActive ? (tutPref + modes[mode].tut):help);
+		String str = (tutActive ? (tutPref + modes[mode].tut):help);
 		g.drawRect(5, 5, g.getFont().getWidth(str)+20, g.getFont().getHeight(str)+20);
 		g.setColor(Color.black);
 		g.fillRect(5, 5, g.getFont().getWidth(str)+20, g.getFont().getHeight(str)+20);
 		g.setColor(Color.white);
 		g.drawString(str, 15, 15);
+		int x = 5;
+		for(int i = 0; i < modes.length; i++) {
+			str = modes[i].name;
+			g.setColor(i == mode ? Color.yellow:Color.white);
+			g.drawRect(x, h-g.getFont().getHeight(str)-25, g.getFont().getWidth(str)+20, g.getFont().getHeight(str)+20);
+			g.setColor(Color.black);
+			g.fillRect(x, h-g.getFont().getHeight(str)-25, g.getFont().getWidth(str)+20, g.getFont().getHeight(str)+20);
+			g.setColor(i == mode ? Color.yellow:Color.white);
+			g.drawString(str, x+10, h-g.getFont().getHeight(str)-15);
+			x += g.getFont().getWidth(str)+20;
+		}
 	}
 
 	public void saveData() {
@@ -234,7 +247,7 @@ public class APIMain extends BasicGame {
 				nodes.add(new Node(Double.parseDouble(tok), Double.parseDouble(st.nextToken())));
 				tok = st.nextToken();
 			}
-			while(st.hasMoreTokens()) {
+			while(st.hasMoreTokens()) {	
 				cons.add(new Connection(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken())));
 			}
 		}catch(Exception e) {
