@@ -23,7 +23,6 @@ public class EditMode extends Mode {
 	}
 	
 	public void update(Input in) {
-
 		if(in.isKeyDown(Keyboard.KEY_N))
 			normalize();
 
@@ -58,7 +57,6 @@ public class EditMode extends Mode {
 
 		if(in.isKeyPressed(Keyboard.KEY_R))
 			reset();
-
 	}
 	public void render(GameContainer gc, Graphics g) {
 		int mouseX = gc.getInput().getMouseX();

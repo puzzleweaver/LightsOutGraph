@@ -10,24 +10,26 @@ import org.newdawn.slick.Input;
 public class SelectMode extends Mode {
 
 	private ArrayList<Integer> selected = new ArrayList<>();
-
+	
+	private int selectX, selectY;
+	private boolean selecting;
+	
 	public SelectMode() {
 		super("ctrl+a : select all\n" +
 				"f : flood fill select\n" +
 				"e : extend selected vertices",
 				"SELECT");
 	}
-
+	
 	public void update(Input in) {
+		int mouseX = in.getMouseX(), mouseY = in.getMouseY();
 		//select and deselect clicked vertices
-		boolean mousePressed = in.isMousePressed(0);
-		if (mousePressed) {
-			int x = in.getMouseX(), y = in.getMouseY();
+		if (in.isMousePressed(0)) {
 			if(in.isKeyDown(Input.KEY_E)) {
 				int node = -1;
 				for(int i = 0; i < APIMain.nodes.size(); i++) {
 					Node n = APIMain.nodes.get(i);
-					if((n.x-x)*(n.x-x)+(n.y-y)*(n.y-y) < APIMain.radius*APIMain.radius) {
+					if((n.x-mouseX)*(n.x-mouseX)+(n.y-mouseY)*(n.y-mouseY) < APIMain.radius*APIMain.radius) {
 						node = i;
 						break;
 					}
@@ -44,9 +46,11 @@ public class SelectMode extends Mode {
 				selected.clear();
 			}else {
 				Node n;
+				boolean b = true;
 				for(int i = 0; i < APIMain.nodes.size(); i++) {
 					n = APIMain.nodes.get(i);
-					if((n.x-x)*(n.x-x)+(n.y-y)*(n.y-y) < APIMain.radius*APIMain.radius) {
+					if((n.x-mouseX)*(n.x-mouseX)+(n.y-mouseY)*(n.y-mouseY) < APIMain.radius*APIMain.radius) {
+						b = false;
 						if(in.isKeyDown(Input.KEY_F)) {
 							selected.clear();
 							floodFill(i);
@@ -60,7 +64,29 @@ public class SelectMode extends Mode {
 						break;
 					}
 				}
+				if(b) {
+					selecting = true;
+					selectX = in.getMouseX();
+					selectY = in.getMouseY();
+				}
 			}
+		}
+		//select everything in the area
+		if(selecting && !in.isMouseButtonDown(0)) {
+			if(!in.isKeyDown(Input.KEY_LCONTROL))
+				selected.clear();
+			int x1 = Math.min(selectX, mouseX);
+			int y1 = Math.min(selectY, mouseY);
+			int x2 = Math.max(selectX, mouseX);
+			int y2 = Math.max(selectY, mouseY);
+			Node n;
+			for(int i = 0; i < APIMain.nodes.size(); i++) {
+				n = APIMain.nodes.get(i);
+				if(n.x > x1 && n.x < x2 && n.y > y1 && n.y < y2 && !selected.contains(i)) {
+					selected.add(i);
+				}
+			}
+			selecting = false;
 		}
 		// select all or deselect all on CTRL+A
 		if (in.isKeyDown(Input.KEY_LCONTROL) && in.isKeyPressed(Input.KEY_A)) {
@@ -71,7 +97,7 @@ public class SelectMode extends Mode {
 					selected.add(i);
 		}
 	}
-
+	
 	public void render(GameContainer gc, Graphics g) {
 		int mouseX = gc.getInput().getMouseX();
 		int mouseY = gc.getInput().getMouseY();
@@ -112,6 +138,13 @@ public class SelectMode extends Mode {
 			}
 		}
 		g.setColor(Color.yellow);
+		if(selecting) {
+			int x = Math.min(selectX, mouseX);
+			int y = Math.min(selectY, mouseY);
+			int w = Math.abs(mouseX-selectX);
+			int h = Math.abs(mouseY-selectY);
+			g.drawRect(x, y, w, h);
+		}
 		if(gc.getInput().isKeyDown(Input.KEY_E)) {
 			for(int i = 0; i < selected.size(); i++) {
 				Node n = APIMain.nodes.get(selected.get(i));
@@ -119,7 +152,7 @@ public class SelectMode extends Mode {
 			}
 		}
 	}
-
+	
 	public void floodFill(int n) {
 		selected.add(n);
 		Connection c;
@@ -134,5 +167,5 @@ public class SelectMode extends Mode {
 			}
 		}
 	}
-
+	
 }

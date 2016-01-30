@@ -24,7 +24,7 @@ public class APIMain extends BasicGame {
 
 	//	public static int w = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
 	//			h = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-	public static int w = 800, h = 800;
+	public static int w = 800, h = 600;
 	public static ArrayList<Node> nodes = new ArrayList<>();
 	public static ArrayList<Connection> cons = new ArrayList<>();
 	public static int mouseX, mouseY, mouseWheel;
