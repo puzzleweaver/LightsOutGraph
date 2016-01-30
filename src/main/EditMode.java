@@ -27,6 +27,7 @@ public class EditMode extends Mode {
 				"f : flood fill select on click\n" +
 				"e : extend vertices\n" +
 				"k : connect all selected vertices\n" +
+				"x : extrude\n" +
 				"ctrl + c : copy selection\n" +
 				"ctrl + v : paste",
 				"EDIT");
