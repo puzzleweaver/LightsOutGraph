@@ -57,7 +57,7 @@ public class GH {
 		}
 	}
 	
-	public static void addVertex(int x, int y) {
+	public static void addVertex(double x, double y) {
 		nodes.add(new Node(x, y));
 		cons.add(new ArrayList<Boolean>());
 		for(int i = 0; i < cons.size()-1; i++) {
