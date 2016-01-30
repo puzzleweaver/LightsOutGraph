@@ -27,6 +27,8 @@ public class EditMode extends Mode {
 	}
 	
 	public void update(Input in) {
+		if(in.isKeyPressed(Input.KEY_M))
+			mergeVertices();
 		if(in.isKeyPressed(Input.KEY_D))
 			deleteVertices();
 		if(in.isKeyPressed(Input.KEY_K))
@@ -36,11 +38,6 @@ public class EditMode extends Mode {
 		if(in.isKeyDown(Input.KEY_E)) {
 			if(in.isMousePressed(0))
 				addToChain();
-		}else if(in.isKeyDown(Input.KEY_M)) {
-			if(in.isMousePressed(0))
-				startMerge();
-			else if(merg != -1)
-				endMerge();
 		}else if(in.isKeyDown(Input.KEY_V)) {
 			if(in.isMousePressed(0))
 				addVertex();
@@ -241,25 +238,20 @@ public class EditMode extends Mode {
 		}
 		con = -1;
 	}
-	public void startMerge() {
-		int x = APIMain.mouseX, y = APIMain.mouseY;
+	
+	public void mergeVertices() {
+		int n1 = -1;
 		for(int i = 0; i < GH.nodes.size(); i++) {
-			Node n = GH.nodes.get(i);
-			if(n.check(x, y)) {
-				merg = i;
-				return;
+			if(GH.nodes.get(i).sel) {
+				if(n1 == -1)
+					n1 = i;
+				else {
+					GH.merge(n1, i);
+					mergeVertices();
+					return;
+				}
 			}
 		}
-	}
-	public void endMerge() {
-		int x = APIMain.mouseX, y = APIMain.mouseY;
-		for(int i = 0; i < GH.nodes.size(); i++) {
-			Node n = GH.nodes.get(i);
-			if(n.check(x, y)) {
-				GH.merge(i, merg);
-			}
-		}
-		merg = -1;
 	}
 	
 	public void resetSelections() {

@@ -82,6 +82,7 @@ public class GH {
 		}
 		newl.add(false);
 		addVertex((int) (nodes.get(a).x+nodes.get(b).x)/2, (int) (nodes.get(a).y+nodes.get(b).y)/2);
+		nodes.get(nodes.size()-1).sel = true;
 		removeVertex(a);
 		if(a < b)
 			b--;
