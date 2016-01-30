@@ -240,31 +240,26 @@ public class EditMode extends Mode {
 						return;
 					}
 					ArrayList<Integer> ids = new ArrayList<>();
-					boolean[] list = new boolean[APIMain.nodes.size()];
 					for(int j = 0; j < APIMain.cons.size(); j++) {
 						c = APIMain.cons.get(j);
-						if(list[c.a] || list[c.b]) continue;
 						if(c.a == i && c.b != merg || c.a == merg && c.b != i) {
 							ids.add(c.b);
-							list[c.b] = true;
 						}
 						if(c.b == i && c.a != merg || c.b == merg && c.a != i) {
 							ids.add(c.a);
-							list[c.a] = true;
 						}
 					}
 					APIMain.nodes.add(new Node((int) (APIMain.nodes.get(i).x+APIMain.nodes.get(merg).x)/2,
 							(int) (APIMain.nodes.get(i).y+APIMain.nodes.get(merg).y)/2));
 					for(int j = 0; j < ids.size(); j++) {
-						APIMain.cons.add(new Connection(APIMain.nodes.size()-1, ids.get(j)));
+						APIMain.addConnection(APIMain.nodes.size()-1, ids.get(j));
 					}
 					removeVertice(i);
 					if(i < merg)
 						merg--;
 					removeVertice(merg);
-					merg = -1;
-					return;
 				}
+				merg = -1;
 			}
 		}
 	}

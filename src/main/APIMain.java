@@ -24,7 +24,7 @@ public class APIMain extends BasicGame {
 
 	//	public static int w = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
 	//			h = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-	public static int w = 800, h = 800;
+	public static int w = 600, h = 600;
 	public static ArrayList<Node> nodes = new ArrayList<>();
 	public static ArrayList<Connection> cons = new ArrayList<>();
 	public static int mouseX, mouseY, mouseWheel;
@@ -256,6 +256,19 @@ public class APIMain extends BasicGame {
 			System.exit(1);
 		}
 	}
+	
+	public static void addConnection(int a, int b) {
+		Connection c;
+		for(int i = 0; i < cons.size(); i++) {
+			c = cons.get(i);
+			if((c.a == a && c.b == b) || (c.a == b && c.b == a)) {
+				cons.remove(i);
+				break;
+			}
+		}
+		cons.add(new Connection(a, b));
+	}
+	
 	public String promptForFile(String title) {
 		JFileChooser fc = new JFileChooser();
 		fc.setFileSelectionMode( JFileChooser.FILES_ONLY );
