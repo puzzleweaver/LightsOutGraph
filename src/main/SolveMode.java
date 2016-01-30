@@ -69,8 +69,8 @@ public class SolveMode extends Mode {
 			//discovered means it was put in terms of variables
 			ArrayList<Integer> undiscovered = new ArrayList<>();
 			ArrayList<Integer> discovered = new ArrayList<>();
-			for(int i = 0; i < GH.conss.size(); i++) {
-				if(GH.conss.get(i).get(n)) {
+			for(int i = 0; i < GH.cons.size(); i++) {
+				if(GH.cons.get(i).get(n)) {
 					if(terms[i] == null)
 						undiscovered.add(i);
 					else

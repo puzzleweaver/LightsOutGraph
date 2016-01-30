@@ -10,6 +10,7 @@ public class Node {
 	public double x, y;
 	public boolean clicked;
 	public boolean val;
+	public boolean sel;
 
 	public static int radius = 15;
 

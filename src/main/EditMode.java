@@ -169,7 +169,7 @@ public class EditMode extends Mode {
 		for(int i = 0; i < GH.nodes.size(); i++) {
 			Node n = GH.nodes.get(i);
 			if(n.check(APIMain.mouseX, APIMain.mouseY)) {
-				if(GH.conss.get(con).get(i))
+				if(GH.cons.get(con).get(i))
 					GH.removeConnection(i, con);
 				else
 					GH.addConnection(con, i);
