@@ -1,5 +1,7 @@
 package main;
 
+import java.util.ArrayList;
+
 import org.lwjgl.input.Keyboard;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -13,16 +15,20 @@ public class EditMode extends Mode {
 	private int selectX, selectY, lastMouseX, lastMouseY;
 	private boolean selecting;
 	
+	private ArrayList<ArrayList<Boolean>> copyMat = new ArrayList<>();
+	private ArrayList<Node> copyNodes = new ArrayList<>();
+	
 	public EditMode() {
 		super("n : normalize\n" +
 				"v : add vertex on click\n" +
 				"d : delete selected vertices\n" +
-				"c : center frame around vertices\n" +
 				"m : merge vertices\n" +
 				"ctrl + a : select all vertices\n" +
 				"f : flood fill select on click\n" +
 				"e : extend vertices\n" +
-				"k : connect all selected vertices",
+				"k : connect all selected vertices\n" +
+				"ctrl + c : copy selection\n" +
+				"ctrl + v : paste",
 				"EDIT");
 	}
 	
@@ -35,10 +41,14 @@ public class EditMode extends Mode {
 			connectVertices();
 		if(in.isKeyDown(Input.KEY_N))
 			normalize();
+		if(in.isKeyPressed(Input.KEY_C) && in.isKeyDown(Input.KEY_LCONTROL))
+			copy();
+		if(in.isKeyPressed(Input.KEY_V) && in.isKeyDown(Input.KEY_LCONTROL))
+			paste();
 		if(in.isKeyDown(Input.KEY_E)) {
 			if(in.isMousePressed(0))
 				addToChain();
-		}else if(in.isKeyDown(Input.KEY_V)) {
+		}else if(in.isKeyDown(Input.KEY_V) && !in.isKeyDown(Input.KEY_LCONTROL)) {
 			if(in.isMousePressed(0))
 				addVertex();
 		}else if(in.isMousePressed(0))
@@ -78,7 +88,7 @@ public class EditMode extends Mode {
 				Node.draw(g, APIMain.mouseX, APIMain.mouseY);
 		}
 		g.setColor(Color.yellow);
-		if(gc.getInput().isKeyDown(Keyboard.KEY_V))
+		if(gc.getInput().isKeyDown(Keyboard.KEY_V) && !gc.getInput().isKeyDown(Keyboard.KEY_LCONTROL))
 			Node.draw(g, APIMain.mouseX, APIMain.mouseY);
 		if(con != -1)
 			GH.nodes.get(con).draw(g);
@@ -277,6 +287,41 @@ public class EditMode extends Mode {
 		for(int i = 0; i < GH.nodes.size(); i++)
 			if(GH.cons.get(n).get(i) && !GH.nodes.get(i).sel)
 				floodFill(i);
+	}
+	
+	public void copy() {
+		copyNodes.clear();
+		ArrayList<Integer> refs = new ArrayList<Integer>();
+		copyMat.clear();
+		for(int i = 0; i < GH.nodes.size(); i++)
+			if(GH.nodes.get(i).sel) {
+				copyNodes.add(GH.nodes.get(i).clone());
+				refs.add(i);
+			}
+		for(int i = 0; i < copyNodes.size(); i++) {
+			copyMat.add(new ArrayList<>());
+			for(int j = 0; j < copyNodes.size(); j++)
+				copyMat.get(i).add(GH.cons.get(refs.get(i)).get(refs.get(j)));
+		}
+	}
+	public void paste() {
+		resetSelections();
+		double avgX = 0, avgY = 0;
+		for(int i = 0; i < copyNodes.size(); i++) {
+			avgX += copyNodes.get(i).x / copyNodes.size();
+			avgY += copyNodes.get(i).y / copyNodes.size();
+		}
+		for(int i = 0; i < copyNodes.size(); i++) {
+			GH.addVertex((int) (APIMain.mouseX + copyNodes.get(i).x - avgX), (int) (APIMain.mouseY + copyNodes.get(i).y - avgY));
+			GH.nodes.get(GH.nodes.size()-1).sel = true;
+		}
+		for(int i = 0; i < copyMat.size(); i++) {
+			for(int j = 0; j < copyMat.size(); j++) {
+				if(copyMat.get(i).get(j)) {
+					GH.addConnection(GH.nodes.size()-copyNodes.size()+i, GH.nodes.size()-copyNodes.size()+j);
+				}
+			}
+		}
 	}
 	
 }

@@ -35,7 +35,8 @@ public class APIMain extends BasicGame {
 					"1 : save state\n" +
 					"2 : load state\n" +
 					"3 : toggle show numbers\n" +
-					"esc : exit\n";
+					"esc : exit\n" +
+					"space : center frame around vertices\n";
 
 	public static int defaultLen = 100, border = 100;
 
@@ -119,7 +120,7 @@ public class APIMain extends BasicGame {
 			System.exit(0);
 		}
 		// center functionality
-		if(in.isKeyDown(Keyboard.KEY_C))
+		if(in.isKeyDown(Keyboard.KEY_SPACE))
 			center();
 
 		if(in.isKeyPressed(Keyboard.KEY_RIGHT))

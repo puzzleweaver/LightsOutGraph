@@ -47,5 +47,11 @@ public class Node {
 	public boolean check(int nx, int ny) {
 		return (nx-x)*(nx-x)+(ny-y)*(ny-y) < radius*radius;
 	}
-
+	
+	public Node clone() {
+		Node n = new Node(x, y);
+		n.clicked = clicked;
+		return n;
+	}
+	
 }
