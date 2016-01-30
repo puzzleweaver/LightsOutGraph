@@ -25,8 +25,6 @@ public class APIMain extends BasicGame {
 	//	public static int w = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
 	//			h = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
 	public static int w = 600, h = 600;
-	public static ArrayList<Node> nodes = new ArrayList<>();
-	public static ArrayList<Connection> cons = new ArrayList<>();
 	public static int mouseX, mouseY, mouseWheel;
 	public static final Mode[] modes = {new EditMode(), new SolveMode(), new SelectMode()};
 	public static int mode = 0;
@@ -41,7 +39,7 @@ public class APIMain extends BasicGame {
 					"3 : toggle show numbers\n" +
 					"esc : exit\n";
 
-	public static int radius = 15, defaultLen = 100, border = 100, sel = -1;
+	public static int defaultLen = 100, border = 100, sel = -1;
 
 	public static void main(String[] args) {
 		try {
@@ -75,9 +73,9 @@ public class APIMain extends BasicGame {
 
 		// pan function
 		if(in.isMouseButtonDown(2)) {
-			for(int i = 0; i < nodes.size(); i++) {
-				nodes.get(i).x -= mouseX-in.getMouseX();
-				nodes.get(i).y -= mouseY-in.getMouseY();
+			for(int i = 0; i < GH.nodes.size(); i++) {
+				GH.nodes.get(i).x -= mouseX-in.getMouseX();
+				GH.nodes.get(i).y -= mouseY-in.getMouseY();
 			}
 		}
 
@@ -89,19 +87,19 @@ public class APIMain extends BasicGame {
 		if(mouseWheel != 0) {
 			if(in.isKeyDown(Keyboard.KEY_Q)) {
 				double d, t;
-				for(int i = 0; i < nodes.size(); i++) {
-					nodes.get(i).x = nodes.get(i).x-w/2;
-					nodes.get(i).y = nodes.get(i).y-h/2;
-					d = Math.hypot(nodes.get(i).x, nodes.get(i).y);
-					t = Math.atan2(nodes.get(i).y, nodes.get(i).x);
+				for(int i = 0; i < GH.nodes.size(); i++) {
+					GH.nodes.get(i).x = GH.nodes.get(i).x-w/2;
+					GH.nodes.get(i).y = GH.nodes.get(i).y-h/2;
+					d = Math.hypot(GH.nodes.get(i).x, GH.nodes.get(i).y);
+					t = Math.atan2(GH.nodes.get(i).y, GH.nodes.get(i).x);
 					t += mouseWheel < 0 ? -0.1:0.1;
-					nodes.get(i).x = Math.cos(t)*d+w/2;
-					nodes.get(i).y = Math.sin(t)*d+h/2;
+					GH.nodes.get(i).x = Math.cos(t)*d+w/2;
+					GH.nodes.get(i).y = Math.sin(t)*d+h/2;
 				}
 			}else {
-				for(int i = 0; i < nodes.size(); i++) {
-					nodes.get(i).x = (nodes.get(i).x-mouseX)*(mouseWheel < 0 ? 0.9:1.111)+mouseX;
-					nodes.get(i).y = (nodes.get(i).y-mouseY)*(mouseWheel < 0 ? 0.9:1.111)+mouseY;
+				for(int i = 0; i < GH.nodes.size(); i++) {
+					GH.nodes.get(i).x = (GH.nodes.get(i).x-mouseX)*(mouseWheel < 0 ? 0.9:1.111)+mouseX;
+					GH.nodes.get(i).y = (GH.nodes.get(i).y-mouseY)*(mouseWheel < 0 ? 0.9:1.111)+mouseY;
 				}
 			}
 		}
@@ -128,8 +126,8 @@ public class APIMain extends BasicGame {
 
 		// make selected vertex follow the mouse
 		if(sel != -1){
-			nodes.get(sel).x = in.getMouseX();
-			nodes.get(sel).y = in.getMouseY();
+			GH.nodes.get(sel).x = in.getMouseX();
+			GH.nodes.get(sel).y = in.getMouseY();
 		}
 
 		if(in.isKeyPressed(Keyboard.KEY_RIGHT))
@@ -142,59 +140,46 @@ public class APIMain extends BasicGame {
 	public static void center() {
 		double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
 				maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
-		for(int i = 0; i < nodes.size(); i++) {
-			if(nodes.get(i).x < minX)
-				minX = nodes.get(i).x;
-			if(nodes.get(i).x > maxX)
-				maxX = nodes.get(i).x;
-			if(nodes.get(i).y < minY)
-				minY = nodes.get(i).y;
-			if(nodes.get(i).y > maxY)
-				maxY = nodes.get(i).y;
+		for(int i = 0; i < GH.nodes.size(); i++) {
+			if(GH.nodes.get(i).x < minX)
+				minX = GH.nodes.get(i).x;
+			if(GH.nodes.get(i).x > maxX)
+				maxX = GH.nodes.get(i).x;
+			if(GH.nodes.get(i).y < minY)
+				minY = GH.nodes.get(i).y;
+			if(GH.nodes.get(i).y > maxY)
+				maxY = GH.nodes.get(i).y;
 		}
 		double d = Math.max(maxX-minX, maxY-minY);
-		for(int i = 0; i < nodes.size(); i++) {
-			nodes.get(i).x = (nodes.get(i).x-minX)*(w-2*border)/d+border;
-			nodes.get(i).y = (nodes.get(i).y-minY)*(h-2*border)/d+border;
+		for(int i = 0; i < GH.nodes.size(); i++) {
+			GH.nodes.get(i).x = (GH.nodes.get(i).x-minX)*(w-2*border)/d+border;
+			GH.nodes.get(i).y = (GH.nodes.get(i).y-minY)*(h-2*border)/d+border;
 		}
 	}
 
 	public static void propagate() {
 		Connection c;
-		for(int i = 0; i < nodes.size(); i++) {
-			nodes.get(i).val = nodes.get(i).clicked;
+		for(int i = 0; i < GH.nodes.size(); i++) {
+			GH.nodes.get(i).val = GH.nodes.get(i).clicked;
 		}
-		for(int i = 0; i < cons.size(); i++) {
-			c = cons.get(i);
-			if(nodes.get(c.a).clicked)
-				nodes.get(c.b).val = !nodes.get(c.b).val;
-			if(nodes.get(c.b).clicked)
-				nodes.get(c.a).val = !nodes.get(c.a).val;
+		for(int i = 0; i < GH.cons.size(); i++) {
+			c = GH.cons.get(i);
+			if(GH.nodes.get(c.a).clicked)
+				GH.nodes.get(c.b).val = !GH.nodes.get(c.b).val;
+			if(GH.nodes.get(c.b).clicked)
+				GH.nodes.get(c.a).val = !GH.nodes.get(c.a).val;
 		}
 	}
 
 	public void render(GameContainer gc, Graphics g) throws SlickException {
 		g.setAntiAlias(true);
 		g.setLineWidth(3);
-		Node n;
-		Connection c;
-		g.setColor(Color.white);
-		for(int i = 0; i < cons.size(); i++) {
-			c = cons.get(i);
-			g.drawLine((int) nodes.get(c.a).x, (int) nodes.get(c.a).y, (int) nodes.get(c.b).x, (int) nodes.get(c.b).y);
-		}
+		
+		GH.renderDown(gc, g);
 
 		modes[mode].renderDown(gc, g);
 
-		for(int i = 0; i < nodes.size(); i++) {
-			n = nodes.get(i);
-			g.setColor(n.getColor());
-			g.fillOval((int) n.x-radius, (int) n.y-radius, 2*radius, 2*radius);
-			g.setColor(Color.white);
-			g.drawOval((int) n.x-radius, (int) n.y-radius, 2*radius, 2*radius);
-			if(numsShown)
-				g.drawString(""+i, (int) n.x-g.getFont().getWidth(""+i)+radius/2, (int) n.y-g.getFont().getHeight(""+i)+radius/2);
-		}
+		GH.render(gc, g);
 
 		modes[mode].render(gc, g);
 
@@ -220,12 +205,12 @@ public class APIMain extends BasicGame {
 
 	public void saveData() {
 		String out = "";
-		for(int i = 0; i < nodes.size(); i++) {
-			out += nodes.get(i).x+" "+nodes.get(i).y + " ";
+		for(int i = 0; i < GH.nodes.size(); i++) {
+			out += GH.nodes.get(i).x+" "+GH.nodes.get(i).y + " ";
 		}
 		out += ". ";
-		for(int i = 0; i < cons.size(); i++) {
-			out += cons.get(i).a + " " + cons.get(i).b + (i != cons.size()-1 ? " ":"");
+		for(int i = 0; i < GH.cons.size(); i++) {
+			out += GH.cons.get(i).a + " " + GH.cons.get(i).b + (i != GH.cons.size()-1 ? " ":"");
 		}
 		try(PrintWriter pw = new PrintWriter(promptForFile("Save To..."))){
 			pw.println(out);
@@ -238,35 +223,23 @@ public class APIMain extends BasicGame {
 			new String(encoded);
 			in = new String(encoded);
 		}catch(Exception e) {}
-		nodes = new ArrayList<>();
-		cons = new ArrayList<>();
+		GH.nodes = new ArrayList<>();
+		GH.cons = new ArrayList<>();
 		StringTokenizer st = new StringTokenizer(in);
 		try {
 			tok = st.nextToken();
 			while(!tok.equals(".")) {
-				nodes.add(new Node(Double.parseDouble(tok), Double.parseDouble(st.nextToken())));
+				GH.nodes.add(new Node(Double.parseDouble(tok), Double.parseDouble(st.nextToken())));
 				tok = st.nextToken();
 			}
 			while(st.hasMoreTokens()) {	
-				cons.add(new Connection(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken())));
+				GH.cons.add(new Connection(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken())));
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
 			System.err.println("YOU DAIN'T CHOOSE WELL ENOUGH");
 			System.exit(1);
 		}
-	}
-	
-	public static void addConnection(int a, int b) {
-		Connection c;
-		for(int i = 0; i < cons.size(); i++) {
-			c = cons.get(i);
-			if((c.a == a && c.b == b) || (c.a == b && c.b == a)) {
-				cons.remove(i);
-				break;
-			}
-		}
-		cons.add(new Connection(a, b));
 	}
 	
 	public String promptForFile(String title) {

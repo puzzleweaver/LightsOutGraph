@@ -22,10 +22,10 @@ public class SolveMode extends Mode {
 			int x = in.getMouseX(), y = in.getMouseY();
 			Node n;
 			Connection c;
-			for(int i = 0; i < APIMain.nodes.size(); i++) {
-				n = APIMain.nodes.get(i);
-				if((n.x-x)*(n.x-x)+(n.y-y)*(n.y-y) < APIMain.radius*APIMain.radius) {
-					APIMain.nodes.get(i).trigger();
+			for(int i = 0; i < GH.nodes.size(); i++) {
+				n = GH.nodes.get(i);
+				if((n.x-x)*(n.x-x)+(n.y-y)*(n.y-y) < Node.radius*Node.radius) {
+					GH.nodes.get(i).trigger();
 				}
 			}
 		}
@@ -45,16 +45,16 @@ public class SolveMode extends Mode {
 	}
 	
 	public void reset() {
-		for(int i = 0; i < APIMain.nodes.size(); i++) {
-			APIMain.nodes.get(i).reset();
+		for(int i = 0; i < GH.nodes.size(); i++) {
+			GH.nodes.get(i).reset();
 		}
 	}
 	
 	public void solve() {
 		reset();
 		APIMain.propagate();
-		for(int i = 0; i < APIMain.nodes.size(); i++) {
-			if(APIMain.nodes.get(i).val == false) {
+		for(int i = 0; i < GH.nodes.size(); i++) {
+			if(GH.nodes.get(i).val == false) {
 				solve(i);
 			}
 		}
@@ -63,7 +63,7 @@ public class SolveMode extends Mode {
 		ArrayList<Integer> nextNodes = new ArrayList<>();
 		nextNodes.add(stemNode);
 		int numVars = 1;
-		Term[] terms = new Term[APIMain.nodes.size()];
+		Term[] terms = new Term[GH.nodes.size()];
 		terms[stemNode] = new Term(false, true);
 		ArrayList<Term> equations = new ArrayList<>();
 		
@@ -74,8 +74,8 @@ public class SolveMode extends Mode {
 			//discovered means it was put in terms of variables
 			ArrayList<Integer> undiscovered = new ArrayList<>();
 			ArrayList<Integer> discovered = new ArrayList<>();
-			for(int i = 0; i < APIMain.cons.size(); i++) {
-				Connection c = APIMain.cons.get(i);
+			for(int i = 0; i < GH.cons.size(); i++) {
+				Connection c = GH.cons.get(i);
 				if(c.a == n) {
 					if(terms[c.b] == null)
 						undiscovered.add(c.b);
@@ -135,8 +135,8 @@ public class SolveMode extends Mode {
 				for(int j = 0; j < terms[i].b.length; j++) {
 					clicked ^= (terms[i].b[j] && solution[j]);
 				}
-				if(APIMain.nodes.get(i).clicked != clicked) {
-					APIMain.nodes.get(i).trigger();
+				if(GH.nodes.get(i).clicked != clicked) {
+					GH.nodes.get(i).trigger();
 				}
 			}
 		}

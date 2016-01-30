@@ -27,27 +27,27 @@ public class SelectMode extends Mode {
 		if (in.isMousePressed(0)) {
 			if(in.isKeyDown(Input.KEY_E)) {
 				int node = -1;
-				for(int i = 0; i < APIMain.nodes.size(); i++) {
-					Node n = APIMain.nodes.get(i);
-					if((n.x-mouseX)*(n.x-mouseX)+(n.y-mouseY)*(n.y-mouseY) < APIMain.radius*APIMain.radius) {
+				for(int i = 0; i < GH.nodes.size(); i++) {
+					Node n = GH.nodes.get(i);
+					if((n.x-mouseX)*(n.x-mouseX)+(n.y-mouseY)*(n.y-mouseY) < Node.radius*Node.radius) {
 						node = i;
 						break;
 					}
 				}
 				if(node == -1) {
-					APIMain.nodes.add(new Node(in.getMouseX(), in.getMouseY()));
-					node = APIMain.nodes.size()-1;
+					GH.nodes.add(new Node(in.getMouseX(), in.getMouseY()));
+					node = GH.nodes.size()-1;
 				}
 				for(int i = 0; i < selected.size(); i++) {
-					APIMain.addConnection(node, selected.get(i));
+					GH.addConnection(node, selected.get(i));
 				}
 				selected.clear();
 			}else {
 				Node n;
 				boolean b = true;
-				for(int i = 0; i < APIMain.nodes.size(); i++) {
-					n = APIMain.nodes.get(i);
-					if((n.x-mouseX)*(n.x-mouseX)+(n.y-mouseY)*(n.y-mouseY) < APIMain.radius*APIMain.radius) {
+				for(int i = 0; i < GH.nodes.size(); i++) {
+					n = GH.nodes.get(i);
+					if((n.x-mouseX)*(n.x-mouseX)+(n.y-mouseY)*(n.y-mouseY) < Node.radius*Node.radius) {
 						b = false;
 						if(in.isKeyDown(Input.KEY_F)) {
 							selected.clear();
@@ -78,8 +78,8 @@ public class SelectMode extends Mode {
 			int x2 = Math.max(selectX, mouseX);
 			int y2 = Math.max(selectY, mouseY);
 			Node n;
-			for(int i = 0; i < APIMain.nodes.size(); i++) {
-				n = APIMain.nodes.get(i);
+			for(int i = 0; i < GH.nodes.size(); i++) {
+				n = GH.nodes.get(i);
 				if(n.x > x1 && n.x < x2 && n.y > y1 && n.y < y2 && !selected.contains(i)) {
 					selected.add(i);
 				}
@@ -88,10 +88,10 @@ public class SelectMode extends Mode {
 		}
 		// select all or deselect all on CTRL+A
 		if (in.isKeyDown(Input.KEY_LCONTROL) && in.isKeyPressed(Input.KEY_A)) {
-			boolean b = selected.size() < APIMain.nodes.size();
+			boolean b = selected.size() < GH.nodes.size();
 			selected.clear();
 			if (b)
-				for (int i = 0; i < APIMain.nodes.size(); i++)
+				for (int i = 0; i < GH.nodes.size(); i++)
 					selected.add(i);
 		}
 	}
@@ -99,26 +99,26 @@ public class SelectMode extends Mode {
 	public void render(GameContainer gc, Graphics g) {
 		int mouseX = gc.getInput().getMouseX();
 		int mouseY = gc.getInput().getMouseY();
+		
 		g.setColor(Color.blue.brighter());
 		for (int i = 0; i < selected.size(); i++) {
-			Node n = APIMain.nodes.get(selected.get(i));
-			g.drawOval((int) (n.x - APIMain.radius), (int) (n.y - APIMain.radius), 2 * APIMain.radius,
-					2 * APIMain.radius);
+			Node n = GH.nodes.get(selected.get(i));
+			n.draw(g);
 		}
-		g.setColor(Color.yellow);
 		
+		g.setColor(Color.yellow);
 		if(gc.getInput().isKeyDown(Input.KEY_E)) {
 			boolean b = false;
-			for(int i = 0; i < APIMain.nodes.size(); i++) {
-				Node n = APIMain.nodes.get(i);
-				if((n.x-mouseX)*(n.x-mouseX)+(n.y-mouseY)*(n.y-mouseY) < APIMain.radius*APIMain.radius) {
-					g.drawOval((int) (n.x-APIMain.radius), (int) (n.y-APIMain.radius), 2*APIMain.radius, 2*APIMain.radius);
+			for(int i = 0; i < GH.nodes.size(); i++) {
+				Node n = GH.nodes.get(i);
+				if((n.x-mouseX)*(n.x-mouseX)+(n.y-mouseY)*(n.y-mouseY) < Node.radius*Node.radius) {
+					n.draw(g);
 					b = true;
 					break;
 				}
 			}
 			if(!b)
-				g.drawOval(mouseX-APIMain.radius, mouseY-APIMain.radius, 2*APIMain.radius, 2*APIMain.radius);
+				Node.draw(g, mouseX, mouseY);
 		}
 	}
 	
@@ -127,11 +127,11 @@ public class SelectMode extends Mode {
 		int mouseY = gc.getInput().getMouseY();
 		g.setColor(Color.blue.brighter());
 		Connection c;
-		for (int i = 0; i < APIMain.cons.size(); i++) {
-			c = APIMain.cons.get(i);
+		for (int i = 0; i < GH.cons.size(); i++) {
+			c = GH.cons.get(i);
 			if (selected.contains(c.a) && selected.contains(c.b)) {
-				Node n1 = APIMain.nodes.get(c.a);
-				Node n2 = APIMain.nodes.get(c.b);
+				Node n1 = GH.nodes.get(c.a);
+				Node n2 = GH.nodes.get(c.b);
 				g.drawLine((int) n1.x, (int) n1.y, (int) n2.x, (int) n2.y);
 			}
 		}
@@ -145,7 +145,7 @@ public class SelectMode extends Mode {
 		}
 		if(gc.getInput().isKeyDown(Input.KEY_E)) {
 			for(int i = 0; i < selected.size(); i++) {
-				Node n = APIMain.nodes.get(selected.get(i));
+				Node n = GH.nodes.get(selected.get(i));
 				g.drawLine((int) n.x, (int) n.y, mouseX, mouseY);
 			}
 		}
@@ -154,8 +154,8 @@ public class SelectMode extends Mode {
 	public void floodFill(int n) {
 		selected.add(n);
 		Connection c;
-		for (int i = 0; i < APIMain.cons.size(); i++) {
-			c = APIMain.cons.get(i);
+		for (int i = 0; i < GH.cons.size(); i++) {
+			c = GH.cons.get(i);
 			if (c.a == n) {
 				if (!selected.contains(c.b))
 					floodFill(c.b);
