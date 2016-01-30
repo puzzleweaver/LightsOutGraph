@@ -1,5 +1,10 @@
 package main;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import javax.swing.JFileChooser;
 import javax.swing.UIManager;
 
@@ -20,7 +25,8 @@ public class APIMain extends BasicGame {
 	public static int w = 600, h = 600;
 	public static int mouseX, mouseY, mouseWheel;
 	public static final Mode[] modes = {new EditMode(), new SolveMode(), new SelectMode()};
-	public static int mode = 0;
+	public static int mode = 0, notifyTimer = 0;
+	public static String note;
 
 	public static boolean tutActive = false, numsShown = false;
 	public static String help = "h : help",
@@ -169,6 +175,16 @@ public class APIMain extends BasicGame {
 		g.fillRect(5, 5, g.getFont().getWidth(str)+20, g.getFont().getHeight(str)+20);
 		g.setColor(Color.white);
 		g.drawString(str, 15, 15);
+		
+		if(notifyTimer != 0) {
+			notifyTimer--;
+			g.setColor(Color.black);
+			g.fillRect(w/2-g.getFont().getWidth(note)/2-10, h/2-g.getFont().getHeight(note)/2-10, g.getFont().getWidth(note)+20, g.getFont().getHeight(note)+20);
+			g.setColor(Color.white);
+			g.drawRect(w/2-g.getFont().getWidth(note)/2-10, h/2-g.getFont().getHeight(note)/2-10, g.getFont().getWidth(note)+20, g.getFont().getHeight(note)+20);
+			g.drawString(note, w/2-g.getFont().getWidth(note)/2, h/2-g.getFont().getHeight(note)/2);
+		}
+		
 		int x = 5;
 		for(int i = 0; i < modes.length; i++) {
 			str = modes[i].name;
@@ -183,18 +199,58 @@ public class APIMain extends BasicGame {
 	}
 
 	public void saveData() {
+		String out = "";
+		for(int i = 0; i < GH.nodes.size(); i++) {
+			out += GH.nodes.get(i).x + " " + GH.nodes.get(i).y + " " + (GH.nodes.get(i).clicked?0:1) + " ";
+		}
+		out += ".\n";
+		for(int i = 0; i < GH.cons.size(); i++) {
+			for(int j = 0; j < GH.cons.size(); j++) {
+				out += GH.cons.get(i).get(j) ? "1":"0";
+			}
+			out += "\n";
+		}
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(promptForFile(true));
+		}catch(Exception e) {
+			notify("NO FILE CHOSEN");
+			return;
+		}
+		pw.print(out);
+		pw.close();
+		notify("SAVED SUCCESSFULLY");
 	}
 	public void loadData() {
+		String in;
+		try {
+			in = new String(Files.readAllBytes(Paths.get(promptForFile(false))));//JFileChooser.OPEN_DIALOG))));
+		} catch (Exception e) {
+			notify("NO FILE CHOSEN");
+			return;
+		}
+		try {
+			GH.load(in);
+		}catch(Exception e) {
+			notify("INCORRECTLY FORMATTED FILE");
+			return;
+		}
+		notify("FILE LOADED SUCCESSFULLY");
 	}
 	
-	public String promptForFile(String title) {
+	public String promptForFile(boolean saving) {
 		JFileChooser fc = new JFileChooser();
 		fc.setFileSelectionMode( JFileChooser.FILES_ONLY );
-		fc.setDialogTitle(title);
-		if( fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION ) {
+//		fc.setDialogTitle(title);
+		if((saving ? fc.showSaveDialog(null):fc.showOpenDialog(null)) == JFileChooser.APPROVE_OPTION) {
 			return fc.getSelectedFile().getAbsolutePath();
 		}
 		return null;
+	}
+	
+	public void notify(String str) {
+		note = str;
+		notifyTimer = 200;
 	}
 
 }

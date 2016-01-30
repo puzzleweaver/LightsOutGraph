@@ -1,6 +1,7 @@
 package main;
 
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -98,6 +99,27 @@ public class GH {
 			for(int j = 0; j < nodes.size(); j++)
 				nodes.get(i).val ^= nodes.get(j).clicked && cons.get(i).get(j);
 		}
+	}
+	
+	public static void load(String in) throws Exception {
+		StringTokenizer st = new StringTokenizer(in);
+		String tok = st.nextToken();
+		ArrayList<Node> tNodes = new ArrayList<>();
+		ArrayList<ArrayList<Boolean>> tCons = new ArrayList<>();
+		while(!tok.equals(".")) {
+			tNodes.add(new Node(Double.parseDouble(tok), Double.parseDouble(st.nextToken())));
+			tNodes.get(tNodes.size()-1).clicked = st.nextToken().equals("0");
+			tok = st.nextToken();
+		}
+		for(int i = 0; i < tNodes.size(); i++) {
+			tCons.add(new ArrayList<Boolean>());
+			tok = st.nextToken();
+			for(int j = 0; j < tNodes.size(); j++) {
+				tCons.get(i).add(tok.charAt(j) == '1');
+			}
+		}
+		cons = tCons;
+		nodes = tNodes;
 	}
 
 }
