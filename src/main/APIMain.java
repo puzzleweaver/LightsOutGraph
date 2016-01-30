@@ -1,6 +1,5 @@
 package main;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -38,7 +37,7 @@ public class APIMain extends BasicGame {
 					"3 : toggle show numbers\n" +
 					"esc : exit\n";
 
-	public static int defaultLen = 100, border = 100, sel = -1;
+	public static int defaultLen = 100, border = 100;
 
 	public static void main(String[] args) {
 		try {
@@ -122,12 +121,6 @@ public class APIMain extends BasicGame {
 		// center functionality
 		if(in.isKeyDown(Keyboard.KEY_C))
 			center();
-
-		// make selected vertex follow the mouse
-		if(sel != -1){
-			GH.nodes.get(sel).x = in.getMouseX();
-			GH.nodes.get(sel).y = in.getMouseY();
-		}
 
 		if(in.isKeyPressed(Keyboard.KEY_RIGHT))
 			mode = (mode+1)%modes.length;

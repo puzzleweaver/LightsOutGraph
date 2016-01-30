@@ -28,7 +28,6 @@ public class GH {
 	}
 	
 	public static void renderDown(GameContainer gc, Graphics g) {
-		Connection c;
 		g.setColor(Color.white);
 		for(int i = 0; i < cons.size(); i++) {
 			for(int j = i+1; j < cons.size(); j++) {
