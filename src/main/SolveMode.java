@@ -49,10 +49,9 @@ public class SolveMode extends Mode {
 	public void solve() {
 		reset();
 		GH.propagate();
-//		for(int i = 0; i < GH.nodes.size(); i++)
-//			if(GH.nodes.get(i).val == false)
-//				solve(i);
-		solve(0);
+		for(int i = 0; i < GH.nodes.size(); i++)
+			if(GH.nodes.get(i).val == false)
+				solve(i);
 	}
 	public void solve(int stemNode) {
 		ArrayList<Integer> nextNodes = new ArrayList<>();
