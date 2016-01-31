@@ -44,7 +44,8 @@ public class APIMain extends BasicGame {
 		try {
 			AppGameContainer app = new AppGameContainer(new APIMain());
 			app.setDisplayMode(w, h, false);
-			app.setMinimumLogicUpdateInterval(15);
+			app.setMinimumLogicUpdateInterval(30);
+			app.setVSync(true);
 			app.start();
 		}catch(SlickException e) {
 			System.out.println(e);

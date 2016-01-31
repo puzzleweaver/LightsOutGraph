@@ -1,6 +1,10 @@
 package main;
 
+import java.util.Random;
+
 public class GaussianElimination {
+	
+	private static Random r = new Random();
 	
     public static boolean[] solve(boolean[][] A, boolean[] b) {
     	int N = b.length;
@@ -38,9 +42,13 @@ public class GaussianElimination {
     	
     	//back substitution
     	boolean[] x = new boolean[N];
+    	for(int i = 0; i < x.length; i++) {
+    		x[i] = r.nextBoolean();
+    	}
     	for(int i = N-1; i >= 0; i--) {
     		for(int j = i; j < N; j++) {
     			if(A[i][j]) {
+    				x[j] = false;
     				for(int k = j+1; k < N; k++)
     					x[j] ^= A[i][k] && x[k];
     				x[j] ^= b[i];
