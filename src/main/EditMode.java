@@ -9,14 +9,15 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 
 public class EditMode extends Mode {
-
-	private int con = -1, merg = -1;
+	
+	private int con = -1;
 	
 	private int selectX, selectY, lastMouseX, lastMouseY;
 	private boolean selecting;
 	
 	private ArrayList<ArrayList<Boolean>> copyMat = new ArrayList<>();
 	private ArrayList<Node> copyNodes = new ArrayList<>();
+	private double copyRadius;
 	
 	public EditMode() {
 		super("n : normalize\n" +
@@ -26,18 +27,24 @@ public class EditMode extends Mode {
 				"ctrl + a : select all vertices\n" +
 				"f : flood fill select on click\n" +
 				"e : extend vertices\n" +
-				"k : connect all selected vertices\n" +
 				"x : extrude\n" +
+				"k : connect all selected vertices\n" +
+				"r : delete selected edges\n" +
+				"i : isolate selected vertices\n" +
 				"ctrl + c : copy selection\n" +
 				"ctrl + v : paste",
 				"EDIT");
 	}
 	
 	public void update(Input in) {
+		if(in.isKeyPressed(Input.KEY_I))
+			isolateVertices();
 		if(in.isKeyPressed(Input.KEY_M))
 			mergeVertices();
 		if(in.isKeyPressed(Input.KEY_D))
 			deleteVertices();
+		if(in.isKeyPressed(Input.KEY_R))
+			deleteEdges();
 		if(in.isKeyPressed(Input.KEY_K))
 			connectVertices();
 		if(in.isKeyDown(Input.KEY_N))
@@ -72,17 +79,12 @@ public class EditMode extends Mode {
 	}
 	public void render(GameContainer gc, Graphics g) {
 		
-		g.setColor(Color.blue.brighter());
-		for (int i = 0; i < GH.nodes.size(); i++)
-			if(GH.nodes.get(i).sel)
-				GH.nodes.get(i).draw(g);
-		
 		g.setColor(Color.yellow);
 		if(gc.getInput().isKeyDown(Input.KEY_E)) {
 			boolean b = false;
 			for(int i = 0; i < GH.nodes.size(); i++) {
 				Node n = GH.nodes.get(i);
-				if((n.x-APIMain.mouseX)*(n.x-APIMain.mouseX)+(n.y-APIMain.mouseY)*(n.y-APIMain.mouseY) < Node.radius*Node.radius) {
+				if((n.x-APIMain.mouseX)*(n.x-APIMain.mouseX)+(n.y-APIMain.mouseY)*(n.y-APIMain.mouseY) < Node.radius()*Node.radius()) {
 					n.draw(g);
 					b = true;
 					break;
@@ -90,8 +92,7 @@ public class EditMode extends Mode {
 			}
 			if(!b)
 				Node.draw(g, APIMain.mouseX, APIMain.mouseY);
-		}
-		if(gc.getInput().isKeyDown(Input.KEY_X)) {
+		}else if(gc.getInput().isKeyDown(Input.KEY_X)) {
 			int avgX = 0, avgY = 0;
 			ArrayList<Integer> refs = new ArrayList<Integer>();
 			for(int i = 0; i < GH.nodes.size(); i++) {
@@ -113,29 +114,8 @@ public class EditMode extends Mode {
 			Node.draw(g, APIMain.mouseX, APIMain.mouseY);
 		if(con != -1)
 			GH.nodes.get(con).draw(g);
-		if(merg != -1) {
-			GH.nodes.get(merg).draw(g);
-			for(int i = 0; i < GH.nodes.size(); i++) {
-				Node n = GH.nodes.get(i);
-				if(n.check(APIMain.mouseX, APIMain.mouseY)) {
-					n.draw(g);
-					Node.draw(g, (int) (n.x+GH.nodes.get(merg).x)/2,
-							(int) (n.y+GH.nodes.get(merg).y)/2);
-					break;
-				}
-			}
-		}
 	}
 	public void renderDown(GameContainer gc, Graphics g) {
-		g.setColor(Color.blue.brighter());
-		for (int i = 0; i < GH.nodes.size(); i++)
-			if(GH.nodes.get(i).sel)
-				for(int j = 0; j < GH.nodes.size(); j++)
-					if(GH.nodes.get(j).sel && GH.cons.get(i).get(j)) {
-						Node n1 = GH.nodes.get(i);
-						Node n2 = GH.nodes.get(j);
-						g.drawLine((int) n1.x, (int) n1.y, (int) n2.x, (int) n2.y);
-					}
 		g.setColor(Color.yellow);
 		if(selecting) {
 			int x = Math.min(selectX, APIMain.mouseX);
@@ -144,13 +124,14 @@ public class EditMode extends Mode {
 			int h = Math.abs(APIMain.mouseY-selectY);
 			g.drawRect(x, y, w, h);
 		}
-		if(gc.getInput().isKeyDown(Input.KEY_E))
-			for(int i = 0; i < GH.nodes.size(); i++)
+		if(gc.getInput().isKeyDown(Input.KEY_E)) {
+			for(int i = 0; i < GH.nodes.size(); i++) {
 				if(GH.nodes.get(i).sel) {
 					Node n = GH.nodes.get(i);
 					g.drawLine((int) n.x, (int) n.y, APIMain.mouseX, APIMain.mouseY);
 				}
-		if(gc.getInput().isKeyDown(Input.KEY_X)) {
+			}
+		}else if(gc.getInput().isKeyDown(Input.KEY_X)) {
 			int avgX = 0, avgY = 0;
 			ArrayList<Integer> refs = new ArrayList<Integer>();
 			for(int i = 0; i < GH.nodes.size(); i++) {
@@ -185,10 +166,6 @@ public class EditMode extends Mode {
 		g.setColor(Color.yellow);
 		if(con != -1)
 			g.drawLine((int) GH.nodes.get(con).x, (int) GH.nodes.get(con).y, APIMain.mouseX, APIMain.mouseY);
-//		if(eid != -1)
-//			g.drawLine((int) GH.nodes.get(eid).x, (int) GH.nodes.get(eid).y, mouseX, mouseY);
-		if(merg != -1)
-			g.drawLine((int) GH.nodes.get(merg).x, (int) GH.nodes.get(merg).y, APIMain.mouseX, APIMain.mouseY);
 	}
 	
 	public void normalize() {
@@ -199,7 +176,7 @@ public class EditMode extends Mode {
 		int node = -1;
 		for(int i = 0; i < GH.nodes.size(); i++) {
 			Node n = GH.nodes.get(i);
-			if((n.x-APIMain.mouseX)*(n.x-APIMain.mouseX)+(n.y-APIMain.mouseY)*(n.y-APIMain.mouseY) < Node.radius*Node.radius) {
+			if((n.x-APIMain.mouseX)*(n.x-APIMain.mouseX)+(n.y-APIMain.mouseY)*(n.y-APIMain.mouseY) < Node.radius()*Node.radius()) {
 				node = i;
 				break;
 			}
@@ -217,7 +194,7 @@ public class EditMode extends Mode {
 	}
 	public void connectVertices() {
 		for(int i = 0; i < GH.nodes.size(); i++)
-			for(int j = 0; j < GH.nodes.size(); j++)
+			for(int j = i+1; j < GH.nodes.size(); j++)
 				if(GH.nodes.get(i).sel && GH.nodes.get(j).sel)
 					GH.addConnection(i, j);
 	}
@@ -260,9 +237,19 @@ public class EditMode extends Mode {
 			}
 		}
 	}
+	public void deleteEdges() {
+		for(int i = 0; i < GH.nodes.size(); i++) {
+			if(GH.nodes.get(i).sel) {
+				for(int j = i+1; j < GH.nodes.size(); j++) {
+					if(GH.nodes.get(j).sel)
+						GH.removeConnection(i, j);
+				}
+			}
+		}
+	}
 	
 	public void selectVertices(boolean fill, boolean control) {
-		for(int i = 0; i < GH.nodes.size(); i++) {
+		for(int i = GH.nodes.size()-1; i >= 0; i--) {
 			Node n = GH.nodes.get(i);
 			if(n.check(APIMain.mouseX, APIMain.mouseY)) {
 				if(!control)
@@ -328,8 +315,28 @@ public class EditMode extends Mode {
 		con = -1;
 	}
 	
+	public void isolateVertices() {
+		for(int i = 0; i < GH.nodes.size(); i++) {
+			if(GH.nodes.get(i).sel) {
+				for(int j = 0; j < GH.nodes.size(); j++) {
+					if(!GH.nodes.get(j).sel) {
+						GH.removeConnection(i, j);
+					}
+				}
+			}
+		}
+	}
+	
 	public void mergeVertices() {
+		int X = 0, Y = 0, num = 0;
 		int n1 = -1;
+		for(int i = 0; i < GH.nodes.size(); i++) {
+			if(GH.nodes.get(i).sel) {
+				X += GH.nodes.get(i).x;
+				Y += GH.nodes.get(i).y;
+				num++;
+			}
+		}
 		for(int i = 0; i < GH.nodes.size(); i++) {
 			if(GH.nodes.get(i).sel) {
 				if(n1 == -1)
@@ -337,9 +344,14 @@ public class EditMode extends Mode {
 				else {
 					GH.merge(n1, i);
 					mergeVertices();
-					return;
+					i = -1;
+					n1 = -1;
 				}
 			}
+		}
+		if(num > 0) {
+			GH.nodes.get(GH.nodes.size()-1).x = X/num;
+			GH.nodes.get(GH.nodes.size()-1).y = Y/num;
 		}
 	}
 	
@@ -382,6 +394,7 @@ public class EditMode extends Mode {
 			for(int j = 0; j < copyNodes.size(); j++)
 				copyMat.get(i).add(GH.cons.get(refs.get(i)).get(refs.get(j)));
 		}
+		copyRadius = Node.radius;
 	}
 	public void paste() {
 		resetSelections();
@@ -391,7 +404,9 @@ public class EditMode extends Mode {
 			avgY += copyNodes.get(i).y / copyNodes.size();
 		}
 		for(int i = 0; i < copyNodes.size(); i++) {
-			GH.addVertex((int) (APIMain.mouseX + copyNodes.get(i).x - avgX), (int) (APIMain.mouseY + copyNodes.get(i).y - avgY));
+			int x = (int) ((copyNodes.get(i).x - avgX)*(Node.radius/copyRadius)+APIMain.mouseX);
+			int y = (int) ((copyNodes.get(i).y - avgY)*(Node.radius/copyRadius)+APIMain.mouseY);
+			GH.addVertex(x, y);
 			GH.nodes.get(GH.nodes.size()-1).sel = true;
 		}
 		for(int i = 0; i < copyMat.size(); i++) {

@@ -11,29 +11,30 @@ public class GH {
 
 	public static ArrayList<Node> nodes = new ArrayList<>();
 	public static ArrayList<ArrayList<Boolean>> cons = new ArrayList<>();
-
+	
 	public static void render(GameContainer gc, Graphics g) {
 		Node n;
 		for(int i = 0; i < GH.nodes.size(); i++) {
 			n = GH.nodes.get(i);
 			g.setColor(n.getColor());
 			n.fill(g);
-			g.setColor(Color.white);
+			g.setColor(n.sel ? Color.blue : Color.white);
 			n.draw(g);
 			if(APIMain.numsShown) {
 				g.setColor(Color.black);
-				g.drawString(""+i, (int) n.x-g.getFont().getWidth(""+i)+Node.radius/2, (int) n.y-g.getFont().getHeight(""+i)+Node.radius/2);
+				g.drawString(""+i, (int) (n.x-g.getFont().getWidth(""+i)/2), (int) (n.y-g.getFont().getHeight(""+i)/2));
 			}
 		}
 	}
 	
 	public static void renderDown(GameContainer gc, Graphics g) {
-		g.setColor(Color.white);
 		for(int i = 0; i < cons.size(); i++) {
 			for(int j = i+1; j < cons.size(); j++) {
-				if(cons.get(i).get(j))
+				if(cons.get(i).get(j)) {
+					g.setColor(nodes.get(i).sel && nodes.get(j).sel ? Color.blue : Color.white);
 					g.drawLine((int) nodes.get(i).x, (int) nodes.get(i).y,
 							(int) nodes.get(j).x, (int) nodes.get(j).y);
+				}
 			}
 		}
 	}

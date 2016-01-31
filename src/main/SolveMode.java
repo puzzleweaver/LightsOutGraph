@@ -1,7 +1,6 @@
 package main;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.lwjgl.input.Keyboard;
 import org.newdawn.slick.GameContainer;
@@ -20,10 +19,11 @@ public class SolveMode extends Mode {
 	public void update(Input in) {
 		
 		if(in.isMousePressed(0)) {
-			int x = in.getMouseX(), y = in.getMouseY();
-			for(int i = 0; i < GH.nodes.size(); i++)
-				if(GH.nodes.get(i).check(x, y))
+			for(int i = GH.nodes.size()-1; i >= 0; i--)
+				if(GH.nodes.get(i).check(APIMain.mouseX, APIMain.mouseY)) {
 					GH.nodes.get(i).trigger();
+					break;
+				}
 		}
 		
 		if(in.isKeyPressed(Keyboard.KEY_R)) {

@@ -19,14 +19,14 @@ import org.newdawn.slick.SlickException;
 
 public class APIMain extends BasicGame {
 
-	//	public static int w = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
-	//			h = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-	public static int w = 600, h = 600;
+//		public static int w = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
+//				h = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
+	public static int w = 800, h = 600;
 	public static int mouseX, mouseY, mouseWheel;
 	public static final Mode[] modes = {new EditMode(), new GenMode(), new SolveMode()};
 	public static int mode = 0, notifyTimer = 0;
 	public static String note;
-
+	
 	public static boolean tutActive = false, numsShown = false;
 	public static String help = "h : help",
 			tutPref = "h : help\n" + 
@@ -39,10 +39,14 @@ public class APIMain extends BasicGame {
 					"space : center frame around vertices\n";
 
 	public static int defaultLen = 100, border = 100;
+	
+	public static double lineW = 3;
+	
+	private static AppGameContainer app;
 
 	public static void main(String[] args) {
 		try {
-			AppGameContainer app = new AppGameContainer(new APIMain());
+			app = new AppGameContainer(new APIMain());
 			app.setDisplayMode(w, h, false);
 			app.setMinimumLogicUpdateInterval(30);
 			app.setVSync(true);
@@ -65,8 +69,9 @@ public class APIMain extends BasicGame {
 			ex.printStackTrace();
 		}
 	}
-
+	
 	public void update(GameContainer gc, int arg1) throws SlickException {
+		
 		Input in = gc.getInput();
 
 		GH.propagate();
@@ -97,6 +102,8 @@ public class APIMain extends BasicGame {
 					GH.nodes.get(i).y = Math.sin(t)*d+h/2;
 				}
 			}else {
+				Node.radius *= (mouseWheel < 0 ? 0.9 : 1.111);
+				lineW *= (mouseWheel < 0 ? 0.9 : 1.111);
 				for(int i = 0; i < GH.nodes.size(); i++) {
 					GH.nodes.get(i).x = (GH.nodes.get(i).x-mouseX)*(mouseWheel < 0 ? 0.9:1.111)+mouseX;
 					GH.nodes.get(i).y = (GH.nodes.get(i).y-mouseY)*(mouseWheel < 0 ? 0.9:1.111)+mouseY;
@@ -121,7 +128,7 @@ public class APIMain extends BasicGame {
 			System.exit(0);
 		}
 		// center functionality
-		if(in.isKeyDown(Keyboard.KEY_SPACE))
+		if(in.isKeyPressed(Keyboard.KEY_SPACE))
 			center();
 
 		if(in.isKeyPressed(Keyboard.KEY_RIGHT))
@@ -130,7 +137,7 @@ public class APIMain extends BasicGame {
 			mode = (mode+modes.length-1)%modes.length;
 
 	}
-
+	
 	public static void center() {
 		double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
 				maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
@@ -145,15 +152,18 @@ public class APIMain extends BasicGame {
 				maxY = GH.nodes.get(i).y;
 		}
 		double d = Math.max(maxX-minX, maxY-minY);
+		double scale = ((w+h)/2-2*border)/d;
+		Node.radius *= scale;
+		lineW *= scale;
 		for(int i = 0; i < GH.nodes.size(); i++) {
-			GH.nodes.get(i).x = (GH.nodes.get(i).x-minX)*(w-2*border)/d+border;
-			GH.nodes.get(i).y = (GH.nodes.get(i).y-minY)*(h-2*border)/d+border;
+			GH.nodes.get(i).x = (GH.nodes.get(i).x-minX)*scale+border;
+			GH.nodes.get(i).y = (GH.nodes.get(i).y-minY)*scale+border;
 		}
 	}
-
+	
 	public void render(GameContainer gc, Graphics g) throws SlickException {
 		g.setAntiAlias(true);
-		g.setLineWidth(3);
+		g.setLineWidth((int) Math.max(lineW, 1));
 		
 		GH.renderDown(gc, g);
 
@@ -162,7 +172,9 @@ public class APIMain extends BasicGame {
 		GH.render(gc, g);
 
 		modes[mode].render(gc, g);
-
+		
+		g.setLineWidth(3);
+		
 		g.setColor(Color.white);
 		String str = (tutActive ? (tutPref + modes[mode].tut):help);
 		g.drawRect(5, 5, g.getFont().getWidth(str)+20, g.getFont().getHeight(str)+20);
@@ -192,7 +204,7 @@ public class APIMain extends BasicGame {
 			x += g.getFont().getWidth(str)+20;
 		}
 	}
-
+	
 	public void saveData() {
 		String out = "";
 		for(int i = 0; i < GH.nodes.size(); i++) {
@@ -247,5 +259,5 @@ public class APIMain extends BasicGame {
 		note = str;
 		notifyTimer = 200;
 	}
-
+	
 }
