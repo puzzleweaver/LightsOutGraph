@@ -1,6 +1,7 @@
 package main;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.lwjgl.input.Keyboard;
 import org.newdawn.slick.GameContainer;
@@ -48,11 +49,10 @@ public class SolveMode extends Mode {
 	public void solve() {
 		reset();
 		GH.propagate();
-		for(int i = 0; i < GH.nodes.size(); i++) {
-			if(GH.nodes.get(i).val == false) {
-				solve(i);
-			}
-		}
+//		for(int i = 0; i < GH.nodes.size(); i++)
+//			if(GH.nodes.get(i).val == false)
+//				solve(i);
+		solve(0);
 	}
 	public void solve(int stemNode) {
 		ArrayList<Integer> nextNodes = new ArrayList<>();
@@ -73,7 +73,7 @@ public class SolveMode extends Mode {
 				if(GH.cons.get(i).get(n)) {
 					if(terms[i] == null)
 						undiscovered.add(i);
-					else
+					else if(i != n)
 						discovered.add(i);
 				}
 			}
@@ -89,17 +89,17 @@ public class SolveMode extends Mode {
 				Term[] termsTemp = new Term[undiscovered.size() + discovered.size()];
 				termsTemp[0] = new Term(!terms[n].inverted, terms[n].b);
 				//create a new variable for each node except the last undiscovered one
-				for(int i = 1; i < undiscovered.size(); i++) {
+				for(int i = 0; i < undiscovered.size()-1; i++) {
 					boolean[] b = new boolean[numVars+1];
 					b[numVars] = true;
-					termsTemp[i] = new Term(false, b);
-					terms[undiscovered.get(i)] = termsTemp[i];
+					termsTemp[i+1] = new Term(false, b);
+					terms[undiscovered.get(i)] = termsTemp[i+1];
 					numVars++;
 				}
 				for(int i = 0; i < discovered.size(); i++) {
 					termsTemp[undiscovered.size() + i] = terms[discovered.get(i)];
 				}
-				terms[undiscovered.get(0)] = addTerms(termsTemp);
+				terms[undiscovered.get(undiscovered.size()-1)] = addTerms(termsTemp);
 			}
 			//do the same for all the undiscovered nodes
 			for(int i = 0; i < undiscovered.size(); i++) {
@@ -112,7 +112,7 @@ public class SolveMode extends Mode {
 		for(int i = 0; i < equations.size(); i++) {
 			Term t = equations.get(i);
 			for(int j = 0; j < t.b.length; j++) {
-				A[i][j] = t.b[j]; //maybe A[j][i] ?
+				A[i][j] = t.b[j];
 			}
 			b[i] = !t.inverted;
 		}
@@ -158,7 +158,7 @@ public class SolveMode extends Mode {
 		}
 		
 		public String toString() {
-			String s = inverted ? "1 " : "0 ";
+			String s = inverted ? "1 | " : "0 | ";
 			for(int i = 0; i < b.length; i++) {
 				s = s + (b[i] ? "1 " : "0 ");
 			}
