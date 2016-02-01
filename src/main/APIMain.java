@@ -21,7 +21,7 @@ public class APIMain extends BasicGame {
 
 //		public static int w = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
 //				h = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-	public static int w = 800, h = 600;
+	public static int w = 600, h = 600;
 	public static int mouseX, mouseY, mouseWheel;
 	public static final Mode[] modes = {new EditMode(), new GenMode(), new SolveMode()};
 	public static int mode = 0, notifyTimer = 0;

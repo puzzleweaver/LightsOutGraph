@@ -349,7 +349,7 @@ public class EditMode extends Mode {
 				}
 			}
 		}
-		if(num > 0) {
+		if(num > 1) {
 			GH.nodes.get(GH.nodes.size()-1).x = X/num;
 			GH.nodes.get(GH.nodes.size()-1).y = Y/num;
 		}
