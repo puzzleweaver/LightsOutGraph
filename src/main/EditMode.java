@@ -9,16 +9,16 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 
 public class EditMode extends Mode {
-	
+
 	private int con = -1;
-	
+
 	private int selectX, selectY, lastMouseX, lastMouseY;
 	private boolean selecting;
-	
+
 	private ArrayList<ArrayList<Boolean>> copyMat = new ArrayList<>();
 	private ArrayList<Node> copyNodes = new ArrayList<>();
 	private double copyRadius;
-	
+
 	public EditMode() {
 		super("n : normalize\n" +
 				"v : add vertex on click\n" +
@@ -35,7 +35,7 @@ public class EditMode extends Mode {
 				"ctrl + v : paste",
 				"EDIT");
 	}
-	
+
 	public void update(Input in) {
 		if(in.isKeyPressed(Input.KEY_I))
 			isolateVertices();
@@ -78,7 +78,7 @@ public class EditMode extends Mode {
 		lastMouseY = in.getMouseY();
 	}
 	public void render(GameContainer gc, Graphics g) {
-		
+
 		g.setColor(Color.yellow);
 		if(gc.getInput().isKeyDown(Input.KEY_E)) {
 			boolean b = false;
@@ -167,11 +167,28 @@ public class EditMode extends Mode {
 		if(con != -1)
 			g.drawLine((int) GH.nodes.get(con).x, (int) GH.nodes.get(con).y, APIMain.mouseX, APIMain.mouseY);
 	}
-	
+
 	public void normalize() {
-		// TODO
+		double d, dx, dy;
+		Node a, b;
+		for(int k = 0; k < 4; k++)
+		for(int i = 0; i < GH.nodes.size(); i++) {
+			a = GH.nodes.get(i);
+			for(int j = i+1; j < GH.nodes.size(); j++) {
+				b = GH.nodes.get(j);
+				d = Math.hypot(a.x-b.x, a.y-b.y)/APIMain.lineW;
+				if(GH.cons.get(i).get(j) && d < 25 || d < 50) {
+					dx = 0.25*(a.x-b.x)/APIMain.lineW;
+					dy = 0.25*(a.y-b.y)/APIMain.lineW;
+					a.x += dx/d;
+					a.y += dy/d;
+					b.x -= dx/d;
+					b.y -= dy/d;
+				}
+			}
+		}
 	}
-	
+
 	public void addToChain() {
 		int node = -1;
 		for(int i = 0; i < GH.nodes.size(); i++) {
@@ -224,11 +241,11 @@ public class EditMode extends Mode {
 						GH.addConnection(GH.nodes.size() - refs.size() + i, GH.nodes.size() - refs.size() + j);
 		}
 	}
-	
+
 	public void addVertex() {
 		GH.addVertex(APIMain.mouseX, APIMain.mouseY);
 	}
-	
+
 	public void deleteVertices() {
 		for(int i = 0; i < GH.nodes.size(); i++) {
 			if(GH.nodes.get(i).sel) {
@@ -247,7 +264,7 @@ public class EditMode extends Mode {
 			}
 		}
 	}
-	
+
 	public void selectVertices(boolean fill, boolean control) {
 		for(int i = GH.nodes.size()-1; i >= 0; i--) {
 			Node n = GH.nodes.get(i);
@@ -275,7 +292,7 @@ public class EditMode extends Mode {
 			}
 		}
 	}
-	
+
 	public void selectArea(boolean control) {
 		if(!control)
 			resetSelections();
@@ -292,7 +309,7 @@ public class EditMode extends Mode {
 		}
 		selecting = false;
 	}
-	
+
 	public void startConnection() {
 		for(int i = 0; i < GH.nodes.size(); i++) {
 			Node n = GH.nodes.get(i);
@@ -314,7 +331,7 @@ public class EditMode extends Mode {
 		}
 		con = -1;
 	}
-	
+
 	public void isolateVertices() {
 		for(int i = 0; i < GH.nodes.size(); i++) {
 			if(GH.nodes.get(i).sel) {
@@ -326,7 +343,7 @@ public class EditMode extends Mode {
 			}
 		}
 	}
-	
+
 	public void mergeVertices() {
 		int X = 0, Y = 0, num = 0;
 		int n1 = -1;
@@ -354,7 +371,7 @@ public class EditMode extends Mode {
 			GH.nodes.get(GH.nodes.size()-1).y = Y/num;
 		}
 	}
-	
+
 	public void resetSelections() {
 		for(int i = 0; i < GH.nodes.size(); i++)
 			GH.nodes.get(i).sel = false;
@@ -379,7 +396,7 @@ public class EditMode extends Mode {
 			if(GH.cons.get(n).get(i) && !GH.nodes.get(i).sel)
 				floodFill(i);
 	}
-	
+
 	public void copy() {
 		copyNodes.clear();
 		ArrayList<Integer> refs = new ArrayList<Integer>();
@@ -417,5 +434,5 @@ public class EditMode extends Mode {
 			}
 		}
 	}
-	
+
 }

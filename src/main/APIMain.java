@@ -206,17 +206,6 @@ public class APIMain extends BasicGame {
 	}
 	
 	public void saveData() {
-		String out = "";
-		for(int i = 0; i < GH.nodes.size(); i++) {
-			out += GH.nodes.get(i).x + " " + GH.nodes.get(i).y + " " + (GH.nodes.get(i).clicked?0:1) + " ";
-		}
-		out += ".\n";
-		for(int i = 0; i < GH.cons.size(); i++) {
-			for(int j = 0; j < GH.cons.size(); j++) {
-				out += GH.cons.get(i).get(j) ? "1":"0";
-			}
-			out += "\n";
-		}
 		PrintWriter pw = null;
 		try {
 			pw = new PrintWriter(promptForFile(true));
@@ -224,7 +213,12 @@ public class APIMain extends BasicGame {
 			notify("NO FILE CHOSEN");
 			return;
 		}
-		pw.print(out);
+		String out = "";
+		for(int i = 0; i < GH.nodes.size(); i++) {
+			out += GH.nodes.get(i).x + " " + GH.nodes.get(i).y + " " + (GH.nodes.get(i).clicked?0:1) + " ";
+		}
+		out += ".\n";
+		pw.print(out+GH.getAdjMat());
 		pw.close();
 		notify("SAVED SUCCESSFULLY");
 	}

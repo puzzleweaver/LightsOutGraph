@@ -11,7 +11,7 @@ public class GH {
 
 	public static ArrayList<Node> nodes = new ArrayList<>();
 	public static ArrayList<ArrayList<Boolean>> cons = new ArrayList<>();
-	
+
 	public static void render(GameContainer gc, Graphics g) {
 		Node n;
 		for(int i = 0; i < GH.nodes.size(); i++) {
@@ -26,7 +26,7 @@ public class GH {
 			}
 		}
 	}
-	
+
 	public static void renderDown(GameContainer gc, Graphics g) {
 		for(int i = 0; i < cons.size(); i++) {
 			for(int j = i+1; j < cons.size(); j++) {
@@ -57,7 +57,7 @@ public class GH {
 			cons.get(i).remove(a);
 		}
 	}
-	
+
 	public static void addVertex(double x, double y) {
 		nodes.add(new Node(x, y));
 		cons.add(new ArrayList<Boolean>());
@@ -66,14 +66,14 @@ public class GH {
 			cons.get(i).add(false);
 		}
 		cons.get(cons.size()-1).add(false);
-		
+
 	}
 
 	public static void reset() {
 		nodes = new ArrayList<>();
 		cons = new ArrayList<>();
 	}
-	
+
 	public static void merge(int a, int b) {
 		if(a == b) return;
 		ArrayList<Boolean> newl = new ArrayList<>();
@@ -101,7 +101,7 @@ public class GH {
 				nodes.get(i).val ^= nodes.get(j).clicked && cons.get(i).get(j);
 		}
 	}
-	
+
 	public static void load(String in) throws Exception {
 		StringTokenizer st = new StringTokenizer(in);
 		String tok = st.nextToken();
@@ -121,6 +121,17 @@ public class GH {
 		}
 		cons = tCons;
 		nodes = tNodes;
+	}
+
+	public static String getAdjMat() {
+		String out = "";
+		for(int i = 0; i < cons.size(); i++) {
+			for(int j = 0; j < cons.size(); j++) {
+				out += cons.get(i).get(j) ? "1":"0";
+			}
+			out += "\n";
+		}
+		return out;
 	}
 
 }
